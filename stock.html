@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html style="height: 100%;">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="shortcut icon" href="src/assets/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="src/assets/favicon.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
+  <script src="https://unpkg.com/vue/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue-localstorage@0.6.1/dist/vue-local-storage.min.js"></script>
+  <title>STS</title>
+</head>
+
+  <body style="height: 90%;" v-cloak>
+    <div id="app" style="height: 80%;">
+      <div class="stockName">
+        {{ stockName }}
+      </div>
+      <div>
+        {{ tdata }}
+      </div>
+      <table class="table">
+        <tbody style="height: 80%;">
+          <tr>
+            <th>건수</th>
+            <th>잔량</th>
+            <th>{{ hours }}:{{ minutes }}:{{ seconds }}</th>
+            <th>잔량</th>
+            <th>건수</th>
+          </tr>
+          <tr align="center">
+            <td bgcolor="#0000FF" colspan="2">
+              <font color="white">시장가매도</font>
+            </td>
+            <td bgcolor="#ffffff">시장가</td>
+            <td bgcolor="#FF0000" colspan="2">
+              <font color="white">시장가매수</font>
+            </td>
+          </tr>
+          <tr align="right">
+            <td bgcolor="#E5E5FF">0</td>
+            <td bgcolor="#E5E5FF">0</td>
+            <td bgcolor="#ffffff">0</td>
+            <td bgcolor="#ffe5e5">0</td>
+            <td bgcolor="#ffe5e5">0</td>
+          </tr>
+          <tr align="right">
+            <td bgcolor="#E5E5FF">0</td>
+            <td bgcolor="#E5E5FF">0</td>
+            <td bgcolor="#ffffff">0</td>
+            <td bgcolor="#ffe5e5">0</td>
+            <td bgcolor="#ffe5e5">0</td>
+          </tr>
+          <tr align="right">
+            <td bgcolor="#E5E5FF">0</td>
+            <td bgcolor="#E5E5FF">0</td>
+            <td bgcolor="#ffffff">0</td>
+            <td bgcolor="#ffe5e5">0</td>
+            <td bgcolor="#ffe5e5">0</td>
+          </tr>
+          <tr align="right">
+            <td bgcolor="#E5E5FF">0</td>
+            <td bgcolor="#E5E5FF">0</td>
+            <td bgcolor="#ffffff">0</td>
+            <td bgcolor="#ffe5e5">0</td>
+            <td bgcolor="#ffe5e5">0</td>
+          </tr>
+          <tr align="right">
+            <td bgcolor="#E5E5FF">0</td>
+            <td bgcolor="#E5E5FF">0</td>
+            <td bgcolor="#ffffff">0</td>
+            <td bgcolor="#ffe5e5">0</td>
+            <td bgcolor="#ffe5e5">0</td>
+          </tr>
+          <tr align="right">
+            <td bgcolor="#E5E5FF">0</td>
+            <td bgcolor="#E5E5FF">0</td>
+            <td bgcolor="#ffffff">0</td>
+            <td bgcolor="#ffe5e5">0</td>
+            <td bgcolor="#ffe5e5">0</td>
+          </tr>
+          <tr align="right">
+            <td bgcolor="#E5E5FF">0</td>
+            <td bgcolor="#E5E5FF">0</td>
+            <td bgcolor="#ffffff">0</td>
+            <td bgcolor="#ffe5e5">0</td>
+            <td bgcolor="#ffe5e5">0</td>
+          </tr>
+          <tr align="right">
+            <td bgcolor="#E5E5FF">0</td>
+            <td bgcolor="#E5E5FF">0</td>
+            <td bgcolor="#ffffff">0</td>
+            <td bgcolor="#ffe5e5">0</td>
+            <td bgcolor="#ffe5e5">0</td>
+          </tr>
+          <tr align="right">
+            <td bgcolor="#E5E5FF">0</td>
+            <td bgcolor="#E5E5FF">0</td>
+            <td bgcolor="#ffffff">0</td>
+            <td bgcolor="#ffe5e5">0</td>
+            <td bgcolor="#ffe5e5">0</td>
+          </tr>
+          <tr align="right">
+            <td bgcolor="#E5E5FF">0</td>
+            <td bgcolor="#E5E5FF">0</td>
+            <td bgcolor="#ffffff">0</td>
+            <td bgcolor="#ffe5e5">0</td>
+            <td bgcolor="#ffe5e5">0</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </body>
+
+<script>
+  var getParam = function(key){
+    var _parammap = {};
+    document.location.search.replace(/\??(?:([^=]+)=([^&]*)&?)/g, function () {
+      function decode(s) {
+        return decodeURIComponent(s.split("+").join(" "));
+      }
+
+      _parammap[decode(arguments[1])] = decode(arguments[2]);
+    });
+
+    return _parammap[key];
+  };
+
+  function getHourTime (h) {
+    return h >= 12 ? 'PM' : 'AM'
+  }
+
+  function getZeroPad (n) {
+    return (parseInt(n, 10) >= 10 ? '' : '0') + n
+  }
+
+
+var app = new Vue({
+        el: '#app',
+        data: {
+          name: 'Vue',
+          stockName: getParam("name"),
+          hours: new Date().getHours() % 12 || 12,
+          minutes: getZeroPad(new Date().getMinutes()),
+          seconds: getZeroPad(new Date().getSeconds()),
+          hourtime: '',
+          tdata:''
+        },
+        mounted () {
+          setInterval(this.updateDateTime, 100);
+          this.listenStorage()
+        },
+        ready: function() {
+          
+        },
+        computed: {
+          currentTime: function () {
+            return Date.now()
+          }
+        },
+        methods: {
+          updateDateTime () {
+            let now = new Date()
+            this.hours = now.getHours()
+            this.minutes = getZeroPad(now.getMinutes())
+            this.seconds = getZeroPad(now.getSeconds())
+            this.hourtime = getHourTime(this.hours)
+            this.hours = this.hours % 12 || 12
+          },
+          listenStorage () {
+            var vm = this;
+            window.addEventListener('storage', function(e) { 
+              if(e.key == "6CZ16") {
+                var jdata = JSON.parse(e.newValue);
+                vm.tdata = jdata["매도1단계우선호가가격"]
+              }
+              
+            });
+          }
+        }
+      })
+
+</script>
+
+
+<style>
+    table,
+    th,
+    td {
+      border: 1px solid #ababab;
+    }
+    .stockName {
+      padding: 5px;
+    }
+    body {
+     background-color: #F6F6F8;
+   }
+   .table {
+      width: 100%;
+      height: 100%;
+   }
+   #app {
+    height: 100%;
+   }
+  </style>
+
+</html>

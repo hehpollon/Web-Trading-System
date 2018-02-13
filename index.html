@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="shortcut icon" href="src/assets/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="src/assets/favicon.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
+  <script src="https://unpkg.com/vue/dist/vue.js"></script>
+  <title>STS</title>
+</head>
+
+<body>
+  <div class="logo">
+    <img src="src/assets/logo.png" width="40px" alt="Vue.js"> </div>
+  <div id="app">
+    <button class="connectSocket" v-on:click="connectSocket()">
+      Connect
+    </button>
+    <div>
+      {{ testData }}
+    </div>
+    <div class="inputBox shadow">
+      <input type="text" v-model="stockName"  placeholder="stock" required >
+      
+      <button class="getStock" v-on:click="getStock()">
+        open
+      </button>
+    </div>
+  </div>
+</body>
+  <script>
+    var app = new Vue({
+    	  el: '#app',
+    	  data: {
+    	  	name: 'Vue',
+          testData: 'log data',
+          stockName: '6CZ16'
+    	  },
+    	  methods: {
+             connectSocket() {
+                 var ws = new WebSocket("ws://127.0.0.1:5678/");
+    
+                 var vm = this;
+    
+                 ws.onmessage = function (event) {
+                     var jdata = JSON.parse(event.data);
+                     if (jdata["batch"] != undefined) {
+                         
+                         var jdataInfo =  JSON.parse(jdata["batch"]);
+                         
+                         var 종목코드 = jdataInfo["종목코드"];
+                         var 종목영문약명 = jdataInfo["종목영문약명"];
+    
+                         vm.testData = 종목코드+" "+종목영문약명;
+                         localStorage.setItem('tdata',종목코드);
+                         //vm.exwin.document.body.innerHTML = 종목코드+" "+종목영문약명;
+    
+                         //vm.$ls.set('tdata', 종목코드);
+                         //this.close()
+                     }else if (jdata["quote"] != undefined) {
+
+                        var jdataInfo =  JSON.parse(jdata["quote"]);
+
+                        var 종목코드 = jdataInfo["종목코드"];
+
+                        localStorage.setItem(종목코드, jdata["quote"]);
+                        
+                        if(종목코드=="6CZ16"){
+                          this.close()
+                        }
+                     }
+                 };
+             },
+             getStock() {
+              this.exwin = window.open("stock.html?name="+this.stockName, "", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=300,height=400,top="+(screen.height-700)+",left="+(screen.width-1540));
+            }
+         }
+    	});
+  </script>
+  <style>
+    .loginBtn {
+      margin-top: 30px;
+      background-color: white;
+      width: 100px;
+      height: 30px;
+      font-size: 14px;
+      border: 1px solid #777777;
+      color: #555555;
+      border-radius: 5px;
+    }
+
+    .loginBtn:hover {
+      border: 1px solid #ffffff;
+      background-color: #555555;
+      color: #ffffff;
+    }
+
+    .loginForm {
+      margin-right: 30%;
+      margin-left: 30%;
+    }
+
+    input:focus {
+      outline: none;
+    }
+
+    input {
+      width: 60%;
+    }
+
+    .inputBox {
+      background: white;
+      height: 50px;
+      line-height: 50px;
+      border-radius: 5px;
+      text-align: center;
+      margin-top: 50px;
+      margin-left: 30%;
+      margin-right: 30%;
+    }
+
+    .inputBox input {
+      border-style: none;
+      font-size: 0.9rem;
+    }
+
+    .addContainer {
+      float: right;
+      background: linear-gradient(to right, #6478FB, #8763FB);
+      display: inline-block;
+      width: 3rem;
+      border-radius: 0 5px 5px 0;
+    }
+
+    .getStock {
+      background: white;
+      border-radius: 4px;
+      height: 30px;
+      width: 60px;
+    }
+
+    .addBtn {
+      color: white;
+      vertical-align: middle;
+    }
+    body {
+     text-align: center;
+     background-color: #F6F6F8;
+   }
+   input {
+     border-style: groove;
+     width: 200px;
+   }
+   button {
+     border-style: groove;
+   }
+   .shadow {
+     box-shadow: 5px 10px 10px rgba(0, 0, 0, 0.03)
+   }
+  </style>
+
+</html>
