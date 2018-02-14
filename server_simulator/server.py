@@ -298,6 +298,8 @@ def readFromFile():
 generateByBatch()
 
 mylist.append("6CZ16")
+mylist.append("RBJ17")
+mylist.append("MJYZ16")
 
 start_server = websockets.serve(runServer, '127.0.0.1', 5678)
 print("socket server is running!")

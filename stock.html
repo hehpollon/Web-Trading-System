@@ -17,9 +17,9 @@
     <div id="app" style="height: 80%;">
       <div class="stockName">
         {{ stockName }}
+        {{ curpr }}
       </div>
       <div>
-        {{ tdata }}
       </div>
       <table class="table">
         <tbody style="height: 80%;">
@@ -39,75 +39,75 @@
               <font color="white">시장가매수</font>
             </td>
           </tr>
-          <tr align="right">
-            <td bgcolor="#E5E5FF">0</td>
-            <td bgcolor="#E5E5FF">0</td>
-            <td bgcolor="#ffffff">0</td>
-            <td bgcolor="#ffe5e5">0</td>
-            <td bgcolor="#ffe5e5">0</td>
+          <tr align="right" class="sell">
+            <td class="sBackground">{{snum5}}</td>
+            <td class="sBackground">{{sbal5}}</td>
+            <td class="sBackground spr">{{spr5}}</td>
+            <td class="snBackground"></td>
+            <td class="snBackground"></td>
           </tr>
-          <tr align="right">
-            <td bgcolor="#E5E5FF">0</td>
-            <td bgcolor="#E5E5FF">0</td>
-            <td bgcolor="#ffffff">0</td>
-            <td bgcolor="#ffe5e5">0</td>
-            <td bgcolor="#ffe5e5">0</td>
+          <tr align="right" class="sell">
+            <td class="sBackground">{{snum4}}</td>
+            <td class="sBackground">{{sbal4}}</td>
+            <td class="sBackground spr">{{spr4}}</td>
+            <td class="snBackground"></td>
+            <td class="snBackground"></td>
           </tr>
-          <tr align="right">
-            <td bgcolor="#E5E5FF">0</td>
-            <td bgcolor="#E5E5FF">0</td>
-            <td bgcolor="#ffffff">0</td>
-            <td bgcolor="#ffe5e5">0</td>
-            <td bgcolor="#ffe5e5">0</td>
+          <tr align="right" class="sell">
+            <td class="sBackground">{{snum3}}</td>
+            <td class="sBackground">{{sbal3}}</td>
+            <td class="sBackground spr">{{spr3}}</td>
+            <td class="snBackground"></td>
+            <td class="snBackground"></td>
           </tr>
-          <tr align="right">
-            <td bgcolor="#E5E5FF">0</td>
-            <td bgcolor="#E5E5FF">0</td>
-            <td bgcolor="#ffffff">0</td>
-            <td bgcolor="#ffe5e5">0</td>
-            <td bgcolor="#ffe5e5">0</td>
+          <tr align="right" class="sell">
+            <td class="sBackground">{{snum2}}</td>
+            <td class="sBackground">{{sbal2}}</td>
+            <td class="sBackground spr">{{spr2}}</td>
+            <td class="snBackground"></td>
+            <td class="snBackground"></td>
           </tr>
-          <tr align="right">
-            <td bgcolor="#E5E5FF">0</td>
-            <td bgcolor="#E5E5FF">0</td>
-            <td bgcolor="#ffffff">0</td>
-            <td bgcolor="#ffe5e5">0</td>
-            <td bgcolor="#ffe5e5">0</td>
+          <tr align="right" class="sell">
+            <td class="sBackground">{{snum1}}</td>
+            <td class="sBackground">{{sbal1}}</td>
+            <td class="sBackground spr">{{spr1}}</td>
+            <td class="snBackground"></td>
+            <td class="snBackground"></td>
           </tr>
-          <tr align="right">
-            <td bgcolor="#E5E5FF">0</td>
-            <td bgcolor="#E5E5FF">0</td>
-            <td bgcolor="#ffffff">0</td>
-            <td bgcolor="#ffe5e5">0</td>
-            <td bgcolor="#ffe5e5">0</td>
+          <tr align="right" class="buy">
+            <td class="bnBackground"></td>
+            <td class="bnBackground"></td>
+            <td class="bBackground bpr">{{bpr1}}</td>
+            <td class="bBackground">{{bbal1}}</td>
+            <td class="bBackground">{{bnum1}}</td>
           </tr>
-          <tr align="right">
-            <td bgcolor="#E5E5FF">0</td>
-            <td bgcolor="#E5E5FF">0</td>
-            <td bgcolor="#ffffff">0</td>
-            <td bgcolor="#ffe5e5">0</td>
-            <td bgcolor="#ffe5e5">0</td>
+          <tr align="right" class="buy">
+            <td class="bnBackground"></td>
+            <td class="bnBackground"></td>
+            <td class="bBackground bpr">{{bpr2}}</td>
+            <td class="bBackground">{{bbal2}}</td>
+            <td class="bBackground">{{bnum2}}</td>
           </tr>
-          <tr align="right">
-            <td bgcolor="#E5E5FF">0</td>
-            <td bgcolor="#E5E5FF">0</td>
-            <td bgcolor="#ffffff">0</td>
-            <td bgcolor="#ffe5e5">0</td>
-            <td bgcolor="#ffe5e5">0</td>
+          <tr align="right" class="buy">
+            <td class="bnBackground"></td>
+            <td class="bnBackground"></td>
+            <td class="bBackground bpr">{{bpr3}}</td>
+            <td class="bBackground">{{bbal3}}</td>
+            <td class="bBackground">{{bnum3}}</td>
           </tr>
-          <tr align="right">
-            <td bgcolor="#E5E5FF">0</td>
-            <td bgcolor="#E5E5FF">0</td>
-            <td bgcolor="#ffffff">0</td>
-            <td bgcolor="#ffe5e5">0</td>
-            <td bgcolor="#ffe5e5">0</td>
+          <tr align="right" class="buy">
+            <td class="bnBackground"></td>
+            <td class="bnBackground"></td>
+            <td class="bBackground bpr">{{bpr4}}</td>
+            <td class="bBackground">{{bbal4}}</td>
+            <td class="bBackground">{{bnum4}}</td>
           </tr>
-          <tr align="right">
-            <td bgcolor="#E5E5FF">0</td>
-            <td bgcolor="#E5E5FF">0</td>
-            <td bgcolor="#ffffff">0</td>
-            <td bgcolor="#ffe5e5">0</td>
-            <td bgcolor="#ffe5e5">0</td>
+          <tr align="right" class="buy">
+            <td class="bnBackground"></td>
+            <td class="bnBackground"></td>
+            <td class="bBackground bpr">{{bpr5}}</td>
+            <td class="bBackground">{{bbal5}}</td>
+            <td class="bBackground">{{bnum5}}</td>
           </tr>
         </tbody>
       </table>
@@ -146,7 +146,38 @@ var app = new Vue({
           minutes: getZeroPad(new Date().getMinutes()),
           seconds: getZeroPad(new Date().getSeconds()),
           hourtime: '',
-          tdata:''
+          tdata:'0',
+          spr1:'0',
+          sbal1:'0',
+          snum1:'0',
+          spr2:'0',
+          sbal2:'0',
+          snum2:'0',
+          spr3:'0',
+          sbal3:'0',
+          snum3:'0',
+          spr4:'0',
+          sbal4:'0',
+          snum4:'0',
+          spr5:'0',
+          sbal5:'0',
+          snum5:'0',
+          bpr1:'0',
+          bbal1:'0',
+          bnum1:'0',
+          bpr2:'0',
+          bbal2:'0',
+          bnum2:'0',
+          bpr3:'0',
+          bbal3:'0',
+          bnum3:'0',
+          bpr4:'0',
+          bbal4:'0',
+          bnum4:'0',
+          bpr5:'0',
+          bbal5:'0',
+          bnum5:'0',
+          curpr:'0'
         },
         mounted () {
           setInterval(this.updateDateTime, 100);
@@ -172,11 +203,43 @@ var app = new Vue({
           listenStorage () {
             var vm = this;
             window.addEventListener('storage', function(e) { 
-              if(e.key == "6CZ16") {
+              if(e.key == "q_"+vm.stockName) {
                 var jdata = JSON.parse(e.newValue);
-                vm.tdata = jdata["매도1단계우선호가가격"]
+                vm.spr1 = jdata["매도1단계우선호가가격"];
+                vm.sbal1 = jdata["매도1단계우선호가잔량"];
+                vm.snum1 = jdata["매도1단계우선호가건수"];
+                vm.spr2 = jdata["매도2단계우선호가가격"];
+                vm.sbal2 = jdata["매도2단계우선호가잔량"];
+                vm.snum2 = jdata["매도2단계우선호가건수"];
+                vm.spr3 = jdata["매도3단계우선호가가격"];
+                vm.sbal3 = jdata["매도3단계우선호가잔량"];
+                vm.snum3 = jdata["매도3단계우선호가건수"];
+                vm.spr4 = jdata["매도4단계우선호가가격"];
+                vm.sbal4 = jdata["매도4단계우선호가잔량"];
+                vm.snum4 = jdata["매도4단계우선호가건수"];
+                vm.spr5 = jdata["매도5단계우선호가가격"];
+                vm.sbal5 = jdata["매도5단계우선호가잔량"];
+                vm.snum5 = jdata["매도5단계우선호가건수"];
+
+                vm.bpr1 = jdata["매수1단계우선호가가격"];
+                vm.bbal1 = jdata["매수1단계우선호가잔량"];
+                vm.bnum1 = jdata["매수1단계우선호가건수"];
+                vm.bpr2 = jdata["매수2단계우선호가가격"];
+                vm.bbal2 = jdata["매수2단계우선호가잔량"];
+                vm.bnum2 = jdata["매수2단계우선호가건수"];
+                vm.bpr3 = jdata["매수3단계우선호가가격"];
+                vm.bbal3 = jdata["매수3단계우선호가잔량"];
+                vm.bnum3 = jdata["매수3단계우선호가건수"];
+                vm.bpr4 = jdata["매수4단계우선호가가격"];
+                vm.bbal4 = jdata["매수4단계우선호가잔량"];
+                vm.bnum4 = jdata["매수4단계우선호가건수"];
+                vm.bpr5 = jdata["매수5단계우선호가가격"];
+                vm.bbal5 = jdata["매수5단계우선호가잔량"];
+                vm.bnum5 = jdata["매수5단계우선호가건수"];
+              } else if(e.key == "t_"+vm.stockName) {
+                var jdata = JSON.parse(e.newValue);
+                vm.curpr = jdata["현재가"];
               }
-              
             });
           }
         }
@@ -189,7 +252,7 @@ var app = new Vue({
     table,
     th,
     td {
-      border: 1px solid #ababab;
+      border: 1px solid #ffffff;
     }
     .stockName {
       padding: 5px;
@@ -203,6 +266,30 @@ var app = new Vue({
    }
    #app {
     height: 100%;
+   }
+   .buy {
+    color: #E6050A;
+   }
+   .bpr {
+    font-weight: bold;
+   }
+   .sell {
+     color: #0D46C8;
+   }
+   .spr{
+    font-weight: bold;
+   }
+   .bBackground {
+    background-color: #ffeff4;
+   }
+   .sBackground {
+    background-color: #e0f1ff;
+   }
+   .snBackground {
+    background-color: #ffffff;
+   }
+   .bnBackground {
+    background-color: #ffffff;
    }
   </style>
 

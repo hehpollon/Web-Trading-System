@@ -19,6 +19,9 @@
     <button class="connectSocket" v-on:click="connectSocket()">
       Connect
     </button>
+    <button class="disconnectSocket" v-on:click="disconnectSocket()">
+      Disconnect
+    </button>
     <div>
       {{ testData }}
     </div>
@@ -37,15 +40,16 @@
     	  data: {
     	  	name: 'Vue',
           testData: 'log data',
-          stockName: '6CZ16'
+          stockName: '6CZ16',
+          ws:''
     	  },
     	  methods: {
              connectSocket() {
-                 var ws = new WebSocket("ws://127.0.0.1:5678/");
+                 this.ws = new WebSocket("ws://127.0.0.1:5678/");
     
                  var vm = this;
     
-                 ws.onmessage = function (event) {
+                 this.ws.onmessage = function (event) {
                      var jdata = JSON.parse(event.data);
                      if (jdata["batch"] != undefined) {
                          
@@ -66,13 +70,22 @@
 
                         var 종목코드 = jdataInfo["종목코드"];
 
-                        localStorage.setItem(종목코드, jdata["quote"]);
+                        localStorage.setItem("q_"+종목코드, jdata["quote"]);
                         
-                        if(종목코드=="6CZ16"){
-                          this.close()
-                        }
+                        // if(종목코드=="6CZ16"){
+                        //   this.close()
+                        // }
+                     }else if (jdata["tightening"] != undefined) {
+                        var jdataInfo =  JSON.parse(jdata["tightening"]);
+
+                        var 종목코드 = jdataInfo["종목코드"];
+
+                        localStorage.setItem("t_"+종목코드, jdata["tightening"]);
                      }
                  };
+             },
+             disconnectSocket(){
+                this.ws.close();
              },
              getStock() {
               this.exwin = window.open("stock.html?name="+this.stockName, "", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=300,height=400,top="+(screen.height-700)+",left="+(screen.width-1540));
