@@ -365,19 +365,24 @@ def testData():
 def interval(sec = 0.01):
 	time.sleep(sec)
 
+# 배치 마지막: 349437줄
 def generateByBatch():
-	f = open("./data/stockData.IMDV2","r")
+	f = open("./data/20180213.KSC","rb")
+	lineNum = 0
 	while True:
-		line = f.readline()
-		if not line: break
+		lineNum += 1
+		line = f.readline()[:]
+		code = line[:5]
 
-		if len(line) == 291: # 배치
+		if code == b"A0011": # 배치
+			line = line[:-2].decode('euc-kr')
 			r = batch(line)
 			jdata = json.dumps(r, ensure_ascii=False)
 			batchMap[r["종목코드"]] = jdata
 			securities[r["종목한글약명"]] = r["종목코드"]
 			securitiesNum[r["종목코드"]] = r["종목한글약명"]
-		else:
+			
+		if lineNum > 400000:
 			break
 	f.close()
 
@@ -387,57 +392,64 @@ async def runServer(websocket, path):
 
 	print("connected")
 
+	print("generating Batch...")
 	generateByBatch()
 
+	print("sending Batch...")
 	for info in batchMap:
 		temp = {}
 		temp["batch"] = batchMap[info]
 		sdata = json.dumps(temp, ensure_ascii=False)
-		print(sdata)
 		await websocket.send(sdata)
 		await asyncio.sleep(0.01)
 
-	f = open("./data/20180213.KSC","r")
+		# for testing	
+		break
 
+	f = open("./data/20180213.KSC","rb")
+
+	print("sending StockInfo...")
 	# end of batch
 
 	lineNum = 0
 	while True:
-		code = ""
-
+		stockCode = ""
 		lineNum += 1
-		line = f.readline()
-		if not line: break
-
+		line = f.readline()[:]
+		code = line[:5]
 
 		temp = {}
 
-		if len(line) == 291: # 배치
+		if code == b"A0011": # 배치
 			pass
-		elif len(line) == 187: # 실시간 채결
+		elif code == b"A3011": # 실시간 채결
+
+			line = line[:-2].decode('euc-kr')
 			r = realTimeTightening(line)
 			jdata = json.dumps(r, ensure_ascii=False)
 			tighteningMap[r["종목코드"]] = jdata
-			code = r["종목코드"]
-
+			
 			temp["tightening"] = jdata
+			stockCode = r["종목코드"]
 			pass
-		elif len(line) == 409: # 실시간 호가
+		elif code == b"B6011": # 실시간 호가
+			line = line[:-2].decode('euc-kr')
 			r = realTimeQuote(line)
+
 			jdata = json.dumps(r, ensure_ascii=False)
 			quoteMap[r["종목코드"]] = jdata
-			code = r["종목코드"]
 
 			temp["quote"] = jdata
+			stockCode = r["종목코드"]
 			pass
 		else:
-			print("wrong data")
+			continue
+			pass
 
-		if code in mylist:
+		if stockCode in mylist:
 			sdata = json.dumps(temp, ensure_ascii=False)
-			print(sdata)
 			await websocket.send(sdata)
-			await asyncio.sleep(0.1)
+			#await asyncio.sleep(0.1)
 
 	f.close()
 
@@ -494,11 +506,6 @@ def readFromFile():
 
 	f.close()
 
-readFromFile()
-exit()
-
-testData()
-exit()
 
 generateByBatch()
 

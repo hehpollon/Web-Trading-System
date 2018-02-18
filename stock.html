@@ -16,6 +16,7 @@
   <body style="height: 90%;" v-cloak>
     <div id="app" style="height: 80%;">
       <div class="stockName stitle">
+        {{ hangulName }}
         {{ stockName }}
         {{ curpr }}
       </div>
@@ -164,6 +165,7 @@ function comma(rawNum){
 var app = new Vue({
         el: '#app',
         data: {
+          hangulName: '',
           name: 'Vue',
           stockName: getParam("name"),
           hours: new Date().getHours() % 12 || 12,
@@ -226,39 +228,40 @@ var app = new Vue({
           },
           listenStorage () {
             var vm = this;
+            var stockNum = localStorage.getItem(vm.stockName)
             window.addEventListener('storage', function(e) { 
-              if(e.key == "q_"+vm.stockName) {
+              if(e.key == "q_"+stockNum) {
                 var jdata = JSON.parse(e.newValue);
-                vm.spr1 = jdata["매도1단계우선호가가격"];
-                vm.sbal1 = jdata["매도1단계우선호가잔량"];
+                vm.spr1 = jdata["매도호가1"]*1+"";
+                vm.sbal1 = jdata["매도호가_잔량1"]*1+"";
                 vm.snum1 = jdata["매도1단계우선호가건수"];
-                vm.spr2 = jdata["매도2단계우선호가가격"];
-                vm.sbal2 = jdata["매도2단계우선호가잔량"];
+                vm.spr2 = jdata["매도호가2"]*1+"";
+                vm.sbal2 = jdata["매도호가_잔량2"]*1+"";
                 vm.snum2 = jdata["매도2단계우선호가건수"];
-                vm.spr3 = jdata["매도3단계우선호가가격"];
-                vm.sbal3 = jdata["매도3단계우선호가잔량"];
+                vm.spr3 = jdata["매도호가3"]*1+"";
+                vm.sbal3 = jdata["매도호가_잔량3"]*1+"";
                 vm.snum3 = jdata["매도3단계우선호가건수"];
-                vm.spr4 = jdata["매도4단계우선호가가격"];
-                vm.sbal4 = jdata["매도4단계우선호가잔량"];
+                vm.spr4 = jdata["매도호가4"]*1+"";
+                vm.sbal4 = jdata["매도호가_잔량4"]*1+"";
                 vm.snum4 = jdata["매도4단계우선호가건수"];
-                vm.spr5 = jdata["매도5단계우선호가가격"];
-                vm.sbal5 = jdata["매도5단계우선호가잔량"];
+                vm.spr5 = jdata["매도호가5"]*1+"";
+                vm.sbal5 = jdata["매도호가_잔량5"]*1+"";
                 vm.snum5 = jdata["매도5단계우선호가건수"];
 
-                vm.bpr1 = jdata["매수1단계우선호가가격"];
-                vm.bbal1 = jdata["매수1단계우선호가잔량"];
+                vm.bpr1 = jdata["매수호가1"]*1+"";
+                vm.bbal1 = jdata["매수호가_잔량1"]*1+"";
                 vm.bnum1 = jdata["매수1단계우선호가건수"];
-                vm.bpr2 = jdata["매수2단계우선호가가격"];
-                vm.bbal2 = jdata["매수2단계우선호가잔량"];
+                vm.bpr2 = jdata["매수호가2"]*1+"";
+                vm.bbal2 = jdata["매수호가_잔량2"]*1+"";
                 vm.bnum2 = jdata["매수2단계우선호가건수"];
-                vm.bpr3 = jdata["매수3단계우선호가가격"];
-                vm.bbal3 = jdata["매수3단계우선호가잔량"];
+                vm.bpr3 = jdata["매수호가3"]*1+"";
+                vm.bbal3 = jdata["매수호가_잔량3"]*1+"";
                 vm.bnum3 = jdata["매수3단계우선호가건수"];
-                vm.bpr4 = jdata["매수4단계우선호가가격"];
-                vm.bbal4 = jdata["매수4단계우선호가잔량"];
+                vm.bpr4 = jdata["매수호가4"]*1+"";
+                vm.bbal4 = jdata["매수호가_잔량4"]*1+"";
                 vm.bnum4 = jdata["매수4단계우선호가건수"];
-                vm.bpr5 = jdata["매수5단계우선호가가격"];
-                vm.bbal5 = jdata["매수5단계우선호가잔량"];
+                vm.bpr5 = jdata["매수호가5"]*1+"";
+                vm.bbal5 = jdata["매수호가_잔량5"]*1+"";
                 vm.bnum5 = jdata["매수5단계우선호가건수"];
 
                 vm.spr1 = comma(vm.spr1)

@@ -40,7 +40,7 @@
     	  data: {
     	  	name: 'Vue',
           testData: 'log data',
-          stockName: '6CZ16',
+          stockName: '삼성전자',
           ws:''
     	  },
     	  methods: {
@@ -56,11 +56,11 @@
                          var jdataInfo =  JSON.parse(jdata["batch"]);
                          
                          var 종목코드 = jdataInfo["종목코드"];
-                         var 종목영문약명 = jdataInfo["종목영문약명"];
+                         var 종목한글약명 = jdataInfo["종목한글약명"];
     
-                         vm.testData = 종목코드+" "+종목영문약명;
-                         localStorage.setItem('tdata',종목코드);
-                         //vm.exwin.document.body.innerHTML = 종목코드+" "+종목영문약명;
+                         vm.testData = 종목코드+" "+종목한글약명;
+                         localStorage.setItem(종목한글약명, 종목코드);
+                         //vm.exwin.document.body.innerHTML = 종목코드+" "+종목한글약명;
     
                          //vm.$ls.set('tdata', 종목코드);
                          //this.close()
@@ -88,7 +88,7 @@
                 this.ws.close();
              },
              getStock() {
-              this.exwin = window.open("stock.html?name="+this.stockName, "", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=300,height=400,top="+(screen.height-700)+",left="+(screen.width-1540));
+              this.exwin = window.open("stock.html?name="+this.stockName, "", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=350,height=400,top="+(screen.height-700)+",left="+(screen.width-1540));
             }
          }
     	});
