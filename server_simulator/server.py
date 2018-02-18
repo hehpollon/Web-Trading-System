@@ -12,7 +12,6 @@ import re
 import codecs
 
 
-
 securities = {}
 securitiesNum = {}
 batchMap = {}
@@ -376,8 +375,8 @@ def generateByBatch():
 			r = batch(line)
 			jdata = json.dumps(r, ensure_ascii=False)
 			batchMap[r["종목코드"]] = jdata
-			securities[r["종목영문약명"]] = r["종목코드"]
-			securitiesNum[r["종목코드"]] = r["종목영문약명"]
+			securities[r["종목한글약명"]] = r["종목코드"]
+			securitiesNum[r["종목코드"]] = r["종목한글약명"]
 		else:
 			break
 	f.close()
@@ -409,6 +408,7 @@ async def runServer(websocket, path):
 		lineNum += 1
 		line = f.readline()
 		if not line: break
+
 
 		temp = {}
 
@@ -453,34 +453,45 @@ async def runServer(websocket, path):
 
 def readFromFile():
 
-	f = codecs.open("./data/20180213.KSC","r", "utf-8")
+	f = open("./data/20180213.KSC","rb")
 	lineNum = 0
 	while True:
 		lineNum += 1
-		line = f.readline()
-		if not line: break
+		line = f.readline()[:]
+		code = line[:5]
+
 		temp = {}
 
-		if len(line) == 801: # 배치
+		if code == b"A0011": # 배치
+			line = line[:-2].decode('euc-kr')
+			r = batch(line)
+			jdata = json.dumps(r, ensure_ascii=False)
+			batchMap[r["종목코드"]] = jdata
+			securities[r["종목한글약명"]] = r["종목코드"]
+			securitiesNum[r["종목코드"]] = r["종목한글약명"]
 			pass
-		elif len(line) == 161: # 실시간 채결
-			print("".join(map(chr, line)) )
+		elif code == b"A3011": # 실시간 채결
+
+			line = line[:-2].decode('euc-kr')
 			r = realTimeTightening(line)
-			print(r)
 			jdata = json.dumps(r, ensure_ascii=False)
 			tighteningMap[r["종목코드"]] = jdata
 			
 			temp["tightening"] = jdata
 			pass
-		elif len(line) == 561: # 실시간 호가
+		elif code == b"B6011": # 실시간 호가
+			line = line[:-2].decode('euc-kr')
 			r = realTimeQuote(line)
+
 			jdata = json.dumps(r, ensure_ascii=False)
 			quoteMap[r["종목코드"]] = jdata
 
 			temp["quote"] = jdata
 			pass
 		else:
+			continue
 			pass
+
 	f.close()
 
 readFromFile()
