@@ -18,7 +18,6 @@
       <div class="stockName stitle">
         {{ hangulName }}
         {{ stockName }}
-        {{ curpr }}
       </div>
       <div>
       </div>
@@ -76,36 +75,36 @@
             <td class="snBackground"></td>
           </tr>
           <tr align="right" class="buy">
-            <td class="bnBackground"></td>
-            <td class="bnBackground"></td>
+            <td class="bnBackground contractor" v-bind:class="[sbswitch[0]==2 ? bluecolor : '']">{{ contractor[0] }}</td>
+            <td class="bnBackground volume" v-bind:class="[sbswitch[0]==2 ? bluecolor : '']">{{ volume[0] }}</td>
             <td class="bBackground bpr">{{bpr1}}</td>
             <td class="bBackground">{{bbal1}}</td>
             <td class="bBackground">{{bnum1}}</td>
           </tr>
           <tr align="right" class="buy">
-            <td class="bnBackground"></td>
-            <td class="bnBackground"></td>
+            <td class="bnBackground contractor " v-bind:class="[sbswitch[1]==2 ? bluecolor : '']">{{ contractor[1] }}</td>
+            <td class="bnBackground volume" v-bind:class="[sbswitch[1]==2 ? bluecolor : '']">{{ volume[1] }}</td>
             <td class="bBackground bpr">{{bpr2}}</td>
             <td class="bBackground">{{bbal2}}</td>
             <td class="bBackground">{{bnum2}}</td>
           </tr>
           <tr align="right" class="buy">
-            <td class="bnBackground"></td>
-            <td class="bnBackground"></td>
+            <td class="bnBackground contractor" v-bind:class="[sbswitch[2]==2 ? bluecolor : '']">{{ contractor[2] }}</td>
+            <td class="bnBackground volume" v-bind:class="[sbswitch[2]==2 ? bluecolor : '']">{{ volume[2] }}</td>
             <td class="bBackground bpr">{{bpr3}}</td>
             <td class="bBackground">{{bbal3}}</td>
             <td class="bBackground">{{bnum3}}</td>
           </tr>
           <tr align="right" class="buy">
-            <td class="bnBackground"></td>
-            <td class="bnBackground"></td>
+            <td class="bnBackground contractor" v-bind:class="[sbswitch[3]==2 ? bluecolor : '']">{{ contractor[3] }}</td>
+            <td class="bnBackground volume" v-bind:class="[sbswitch[3]==2 ? bluecolor : '']">{{ volume[3] }}</td>
             <td class="bBackground bpr">{{bpr4}}</td>
             <td class="bBackground">{{bbal4}}</td>
             <td class="bBackground">{{bnum4}}</td>
           </tr>
           <tr align="right" class="buy">
-            <td class="bnBackground"></td>
-            <td class="bnBackground"></td>
+            <td class="bnBackground contractor" v-bind:class="[sbswitch[4]==2 ? bluecolor : '']">{{ contractor[4] }}</td>
+            <td class="bnBackground volume" v-bind:class="[sbswitch[4]==2 ? bluecolor : '']">{{ volume[4] }}</td>
             <td class="bBackground bpr">{{bpr5}}</td>
             <td class="bBackground">{{bbal5}}</td>
             <td class="bBackground">{{bnum5}}</td>
@@ -209,7 +208,11 @@ var app = new Vue({
           bpr5:'0',
           bbal5:'0',
           bnum5:'0',
-          curpr:'0'
+          curpr:'0',
+          contractor:[],
+          volume:[],
+          sbswitch:[],  /* 1:매수 2:매도 */
+          bluecolor: 'bluecolor'
         },
         mounted () {
           setInterval(this.updateDateTime, 100);
@@ -287,9 +290,20 @@ var app = new Vue({
                 vm.bpr5 = comma(vm.bpr5)
 
 
-              } else if(e.key == "t_"+vm.stockName) {
+              } else if(e.key == "t_"+stockNum) {
                 var jdata = JSON.parse(e.newValue);
-                vm.curpr = jdata["현재가"];
+                vm.contractor.push(comma(jdata["체결가격"]*1+""))
+                vm.volume.push(comma(jdata["체결수량"]*1+""))
+                vm.sbswitch.push(jdata["최종매도매수구분코드"])
+                if(vm.contractor.length > 5) {
+                  vm.contractor.shift()
+                }
+                if(vm.volume.length > 5) {
+                  vm.volume.shift()
+                }
+                if(vm.sbswitch.length > 5) {
+                  vm.sbswitch.shift()
+                }
               }
             });
           }
@@ -304,6 +318,16 @@ var app = new Vue({
     th,
     td {
       border: 1px solid #ffffff;
+    }
+    .bluecolor {
+      color: blue;
+    }
+    .volume{
+      font-size:10px;
+      text-align:center;
+    }
+    .contractor{
+      font-size:10px;
     }
     .stockName {
       padding: 5px;

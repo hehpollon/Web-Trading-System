@@ -23,9 +23,13 @@
     <img src="src/assets/favicon.ico" width="40px" alt="Vue.js"> 
   </div>
   <div id="app">
+    <div class="container login" v-if="showInput == false" >
+      <input type="email" class="form-control email" v-model="email" placeholder="ID"></input>
+      <input type="password" class="form-control pw" placeholder="password"></input>
+    </div>
     <div v-if="showInput == false">
       <button class="connectSocket btn btn-dark" v-on:click="connectSocket()">
-        Connect
+        Login
       </button>
       <button class="disconnectSocket" v-on:click="disconnectSocket()" v-if="false">
         Disconnect
@@ -58,6 +62,7 @@
     	  	name: 'Vue',
           testData: 'log data',
           stockName: '삼성전자',
+          email:'',
           batchCompleteNum : 0,
           batchCompletePercent: '0',
           progressWidth: 'width: 0%',
@@ -68,6 +73,11 @@
     	  },
     	  methods: {
              connectSocket() {
+                 if (this.email == "") {
+                    alert("이메일을 입력해 주세요!");
+                    return;
+                 }
+
                  this.ws = new WebSocket("ws://127.0.0.1:5678/");
                  this.wsl = new WebSocket("ws://127.0.0.1:6789/");
                  this.batchCompleteNum = 0;
@@ -233,6 +243,13 @@
    }
    .connectSocket{
 
+   }
+   .login{
+      width: 300px;
+      margin-bottom: 10px;
+   }
+   .email{
+    margin-bottom: 10px;
    }
   </style>
 

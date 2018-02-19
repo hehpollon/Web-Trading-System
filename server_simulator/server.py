@@ -391,13 +391,25 @@ def generateByBatch():
 
 async def listenClient(websocket, path):
 	print("connected listen")
+	global tighteningMap
+	global quoteMap
 	async for message in websocket:
 		if len(message) > 5:
 			if message not in mylist:
 				mylist.append(message)
 				print("registered : ",message)
+				if message in tighteningMap:
+					tdata = json.dumps(tighteningMap[message], ensure_ascii=False)
+					await websocket.send(tdata)
+				if message in quoteMap:
+					qdata = json.dumps(quoteMap[message], ensure_ascii=False)
+					await websocket.send(qdata)
 
 async def sendData(websocket):
+	global tighteningMap
+	global quoteMap
+
+	isSimultaneousCall = True
 	print("sending Batch...")
 	for info in batchMap:
 		temp = {}
@@ -439,12 +451,15 @@ async def sendData(websocket):
 		elif code == b"B6011": # 실시간 호가
 			line = line[:-2].decode('euc-kr')
 			r = realTimeQuote(line)
-
+ 
 			jdata = json.dumps(r, ensure_ascii=False)
 			quoteMap[r["종목코드"]] = jdata
 
 			temp["quote"] = jdata
 			stockCode = r["종목코드"]
+			
+			if int(r["매수호가5"]) > 0:
+				isSimultaneousCall = False
 			pass
 		else:
 			continue
@@ -454,7 +469,10 @@ async def sendData(websocket):
 			if stockCode in mylist:
 				sdata = json.dumps(temp, ensure_ascii=False)
 				await websocket.send(sdata)
-				await asyncio.sleep(0.01)
+				if isSimultaneousCall:
+					await asyncio.sleep(0.0001)
+				else:
+					await asyncio.sleep(0.1)
 
 	f.close()
 
