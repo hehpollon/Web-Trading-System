@@ -9,23 +9,38 @@
   <link rel="icon" href="src/assets/favicon.ico" type="image/x-icon">
   <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
   <script src="https://unpkg.com/vue/dist/vue.js"></script>
+  
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
   <title>STS</title>
 </head>
 
 <body>
   <div class="logo">
-    <img src="src/assets/favicon.ico" width="40px" alt="Vue.js"> </div>
+    <img src="src/assets/favicon.ico" width="40px" alt="Vue.js"> 
+  </div>
   <div id="app">
-    <button class="connectSocket" v-on:click="connectSocket()">
-      Connect
-    </button>
-    <button class="disconnectSocket" v-on:click="disconnectSocket()">
-      Disconnect
-    </button>
-    <div>
-      {{ testData }}
+    <div v-if="showInput == false">
+      <button class="connectSocket btn btn-dark" v-on:click="connectSocket()">
+        Connect
+      </button>
+      <button class="disconnectSocket" v-on:click="disconnectSocket()" v-if="false">
+        Disconnect
+      </button>
     </div>
-    <div class="inputBox shadow">
+
+    <div>
+      <div class=" progress" v-if="showProgress == true">
+        <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" :aria-valuenow="batchCompleteNum" aria-valuemin="0" aria-valuemax="2968" :style="{ width: progressWidth }">
+         {{ batchCompletePercent }} %
+      </div>
+    </div>
+      
+    </div>
+    <div class="inputBox shadow" v-if="showInput == true">
       <input type="text" v-model="stockName"  placeholder="stock" required >
       
       <button class="getStock" v-on:click="getStock()">
@@ -33,6 +48,8 @@
       </button>
     </div>
   </div>
+  <br>
+  <br>
 </body>
   <script>
     var app = new Vue({
@@ -41,13 +58,25 @@
     	  	name: 'Vue',
           testData: 'log data',
           stockName: '삼성전자',
-          ws:''
+          batchCompleteNum : 0,
+          batchCompletePercent: '0',
+          progressWidth: 'width: 0%',
+          showProgress:false,
+          showInput: false,
+          ws:'',
+          wsl:''
     	  },
     	  methods: {
              connectSocket() {
                  this.ws = new WebSocket("ws://127.0.0.1:5678/");
+                 this.wsl = new WebSocket("ws://127.0.0.1:6789/");
+                 this.batchCompleteNum = 0;
+                 this.showProgress = true;
     
                  var vm = this;
+                  this.wsl.onopen = function (event) {
+                   vm.wsl.send("con");
+                 }
     
                  this.ws.onmessage = function (event) {
                      var jdata = JSON.parse(event.data);
@@ -59,7 +88,18 @@
                          var 종목한글약명 = jdataInfo["종목한글약명"];
     
                          vm.testData = 종목코드+" "+종목한글약명;
+                         vm.batchCompleteNum += 1;
+                         var percent = parseInt(vm.batchCompleteNum/2968 * 100)
+                         if(percent > 10){
+                          vm.batchCompletePercent = parseInt(vm.batchCompleteNum/2968 * 100 / 2)  * 2;
+                         }
+                         vm.progressWidth = parseInt(vm.batchCompleteNum/2968 * 100 / 10) * 10 +"%";
                          localStorage.setItem(종목한글약명, 종목코드);
+
+                         if(vm.batchCompleteNum == 2968){
+                           vm.showProgress = false;
+                           vm.showInput = true;
+                         }
                          //vm.exwin.document.body.innerHTML = 종목코드+" "+종목한글약명;
     
                          //vm.$ls.set('tdata', 종목코드);
@@ -86,14 +126,23 @@
              },
              disconnectSocket(){
                 this.ws.close();
+                this.wsl.close();
              },
              getStock() {
-              this.exwin = window.open("stock.html?name="+this.stockName, "", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=350,height=400,top="+(screen.height-700)+",left="+(screen.width-1540));
+                if (localStorage.getItem(this.stockName) === null){
+                  alert("없는 종목입니다.");
+                } else {
+                this.wsl.send(localStorage.getItem(this.stockName));
+                this.exwin = window.open("stock.html?name="+this.stockName, "", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=350,height=400,top="+(screen.height-700)+",left="+(screen.width-1540));
+              }
             }
          }
     	});
   </script>
   <style>
+    .logo{
+      margin: 20px;
+    }
     .loginBtn {
       margin-top: 30px;
       background-color: white;
@@ -110,6 +159,12 @@
       background-color: #555555;
       color: #ffffff;
     }
+    .progress {
+      margin-bottom: 20px;
+      margin-right: 30%;
+      margin-left: 30%;
+      margin-top: 20px;
+    }
 
     .loginForm {
       margin-right: 30%;
@@ -122,17 +177,18 @@
 
     input {
       width: 60%;
+      height: 35px;
+      padding: 0;
     }
 
     .inputBox {
+      margin-top: 20px;
       background: white;
-      height: 50px;
-      line-height: 50px;
       border-radius: 5px;
       text-align: center;
-      margin-top: 50px;
       margin-left: 30%;
       margin-right: 30%;
+      height: 50px;
     }
 
     .inputBox input {
@@ -151,8 +207,10 @@
     .getStock {
       background: white;
       border-radius: 4px;
-      height: 30px;
       width: 60px;
+      margin: 10px;
+      height: 32px;
+      align-items: flex-end; 
     }
 
     .addBtn {
@@ -172,6 +230,9 @@
    }
    .shadow {
      box-shadow: 5px 10px 10px rgba(0, 0, 0, 0.03)
+   }
+   .connectSocket{
+
    }
   </style>
 

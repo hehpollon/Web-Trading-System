@@ -160,10 +160,16 @@ function comma(rawNum){
    return str;
 }
 
+  
+
+
 
 
 var app = new Vue({
         el: '#app',
+        created() {
+          window.addEventListener('beforeunload', this.handler);
+        },
         data: {
           hangulName: '',
           name: 'Vue',
@@ -218,6 +224,10 @@ var app = new Vue({
           }
         },
         methods: {
+           beforePageDestroyed: function (event) {
+              console.log('beforePageDestroyed');
+              alert("beforePageDestroyed");
+          },
           updateDateTime () {
             let now = new Date()
             this.hours = now.getHours()

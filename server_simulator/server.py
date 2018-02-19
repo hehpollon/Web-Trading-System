@@ -10,6 +10,7 @@ import json
 import sys
 import re
 import codecs
+import threading
 
 
 securities = {}
@@ -377,34 +378,36 @@ def generateByBatch():
 		if code == b"A0011": # 배치
 			line = line[:-2].decode('euc-kr')
 			r = batch(line)
+			if r["종목코드"] == "999999999999" and lineNum > 340000:
+				break
+
 			jdata = json.dumps(r, ensure_ascii=False)
 			batchMap[r["종목코드"]] = jdata
 			securities[r["종목한글약명"]] = r["종목코드"]
 			securitiesNum[r["종목코드"]] = r["종목한글약명"]
-			
-		if lineNum > 400000:
-			break
+
+		
 	f.close()
 
+async def listenClient(websocket, path):
+	print("connected listen")
+	async for message in websocket:
+		if len(message) > 5:
+			if message not in mylist:
+				mylist.append(message)
+				print("registered : ",message)
 
-
-async def runServer(websocket, path):
-
-	print("connected")
-
-	print("generating Batch...")
-	generateByBatch()
-
+async def sendData(websocket):
 	print("sending Batch...")
 	for info in batchMap:
 		temp = {}
 		temp["batch"] = batchMap[info]
 		sdata = json.dumps(temp, ensure_ascii=False)
 		await websocket.send(sdata)
-		await asyncio.sleep(0.01)
+		await asyncio.sleep(0.0001)
 
 		# for testing	
-		break
+		#break
 
 	f = open("./data/20180213.KSC","rb")
 
@@ -415,12 +418,13 @@ async def runServer(websocket, path):
 	while True:
 		stockCode = ""
 		lineNum += 1
-		line = f.readline()[:]
+		line = f.readline()
 		code = line[:5]
 
 		temp = {}
 
 		if code == b"A0011": # 배치
+			continue
 			pass
 		elif code == b"A3011": # 실시간 채결
 
@@ -446,13 +450,22 @@ async def runServer(websocket, path):
 			continue
 			pass
 
-		if stockCode in mylist:
-			sdata = json.dumps(temp, ensure_ascii=False)
-			await websocket.send(sdata)
-			#await asyncio.sleep(0.1)
+		if len(mylist) > 0:
+			if stockCode in mylist:
+				sdata = json.dumps(temp, ensure_ascii=False)
+				await websocket.send(sdata)
+				await asyncio.sleep(0.01)
 
 	f.close()
 
+async def runServer(websocket, path):
+
+	print("connected")
+
+	# t = threading.Thread(target=sendData, args=(websocket,))
+	# t.start()
+ 
+	await sendData(websocket)
 
     # while True:
     #     now = datetime.datetime.utcnow().isoformat() + 'Z'
@@ -506,12 +519,15 @@ def readFromFile():
 
 	f.close()
 
-
-generateByBatch()
+print("========= STS =========")
+print("generating Batch...")
+generateByBatch() # total 2968
 
 mylist.append("KR7005930003")
 
 start_server = websockets.serve(runServer, '127.0.0.1', 5678)
+start_server_listen = websockets.serve(listenClient, '127.0.0.1', 6789)
 print("socket server is running!")
+asyncio.get_event_loop().run_until_complete(start_server_listen)
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()
