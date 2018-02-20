@@ -18,10 +18,11 @@
       <div class="stockName stitle">
         {{ hangulName }}
         {{ stockName }}
+        {{ pswitch }}
       </div>
       <div>
       </div>
-      <table class="table">
+      <table class="table" v-cloak>
         <tbody style="height: 80%;">
           <tr>
             <th class="sell">주문</th>
@@ -42,7 +43,7 @@
           <tr align="right" class="sell" v-for="n in [4,3,2,1,0]">
             <td class="sBackground">{{snum[n]}}</td>
             <td class="sBackground">{{sbal[n]}}</td>
-            <td class="sBackground spr">{{spr[n]}}</td>
+            <td class="sBackground spr" v-bind:class="[sswitch[n]==1 ? smatch : '']">{{spr[n]}}</td>
             <td class="snBackground"></td>
             <td class="snBackground"></td>
           </tr>
@@ -52,8 +53,8 @@
             <td class="bnBackground infoText" v-if="n==0"> 거래량 </td>
             <td class="bnBackground contractor" v-bind:class="[sbswitch[n]==2 ? bluecolor : '']" v-if="n>0">{{contractor[n]}}</td>
             <td class="bnBackground volume" v-bind:class="[sbswitch[n]==2 ? bluecolor : '']" v-if="n>0">{{volume[n]}}</td>
-            <td class="bBackground bpr">{{bpr[n]}}</td>
-            <td class="bBackground">{{bbal[n]}}</td>
+            <td class="bBackground bpr" v-bind:class="[bswitch[n]==1 ? bmatch : '']">{{bpr[n]}}</td>
+            <td class="bBackground ">{{bbal[n]}}</td>
             <td class="bBackground">{{bnum[n]}}</td>
           </tr>
         </tbody>
@@ -136,7 +137,11 @@ var app = new Vue({
           contractor:[],
           volume:[],
           sbswitch:[],  /* 1:매수 2:매도 */
-          bluecolor: 'bluecolor'
+          bluecolor: 'bluecolor',
+          bmatch: 'pmatch',
+          smatch: 'pmatch',
+          bswitch:[],
+          sswitch:[]
         },
         mounted () {
           setInterval(this.updateDateTime, 100);
@@ -187,7 +192,8 @@ var app = new Vue({
 
               } else if(e.key == "t_"+stockNum) {
                 var jdata = JSON.parse(e.newValue);
-                vm.contractor.push(comma(jdata["체결가격"]*1+""))
+                var price = comma(jdata["체결가격"]*1+"");
+                vm.contractor.push(price)
                 vm.volume.push(comma(jdata["체결수량"]*1+""))
                 vm.sbswitch.push(jdata["최종매도매수구분코드"])
                 if(vm.contractor.length > 5) {
@@ -198,6 +204,23 @@ var app = new Vue({
                 }
                 if(vm.sbswitch.length > 5) {
                   vm.sbswitch.shift()
+                }
+
+                vm.bswitch = [];
+                for(i = 0; i <5; i++) {
+                  if(price == vm.bpr[i]) {
+                    vm.bswitch.push(1);
+                  }else{
+                    vm.bswitch.push(0);
+                  }
+                }
+                vm.sswitch = [];
+                for(i = 0; i <5; i++) {
+                  if(price == vm.spr[i]) {
+                    vm.sswitch.push(1);
+                  }else{
+                    vm.sswitch.push(0);
+                  }
                 }
               }
             });
@@ -272,6 +295,10 @@ var app = new Vue({
    }
    .stitle {
      color: #333333;
+     font-weight: bold;
+   }
+   .pmatch {
+    border: 1px solid #565656;
    }
   </style>
 
