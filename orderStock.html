@@ -136,16 +136,22 @@
       tighteningQntyMap: {},
       wsl: ''
     },
+    created(){
+      //this.wsl = new WebSocket("ws://127.0.0.1:6789/");
+    },
+    beforeMount(){
+      //this.createRandOdrList();
+    },
     mounted() {
-      //setInterval(this.updateDateTime, 100);
-      this.listenStorageORD();
       this.wsl = new WebSocket("ws://127.0.0.1:6789/");
+      //this.createRandOdrList();
+      this.listenStorageORD();
     },
     methods: {
       orderBtnClick() {
         //웹소켓 서버 주문요청
         if (this.rdmIdxLists.length == 0){
-          //this.btnOrder.aria-pressed
+          //this.btnOrder.getAttribute
           alert("바스켓 리스트를 생성하세요.");
         }
 
@@ -173,7 +179,7 @@
           this.randomValue = 25;
         }
         for (var j = 0; j < this.randomValue; j++) {
-          var idx_tmpValue = Math.floor(Math.random() * 2967); //KOSPI num = 903 //2968개
+          var idx_tmpValue = Math.floor(Math.random() * 884); //KOSPI num = 903 //2968개
           var rndOrderQnty = Math.floor((Math.random() * 100) + 1);
           this.rdmIdxLists.push(idx_tmpValue);
           this.list.push(localStorage.getItem('idxKSP' + idx_tmpValue));
@@ -194,7 +200,7 @@
 
           var vm = this;
           vm.wsl.send(stockCode);
-          console.log(stockCode);
+          console.log("stockCode: "+stockCode);
           this.stockNameMap[stockCode] = stockName;
           this.curPriceMap[stockCode] = 0;
           this.inxMap[stockCode] = i;
