@@ -62,112 +62,65 @@
   <br>
 </body>
 
-  <script>
-    var app = new Vue({
-    	  el: '#app',
-    	  data: {
-    	  	name: 'Vue',
-          testData: 'log data',
-          stockName: '삼성전자',
-          email:'',
-          batchCompleteNum : 0,
-          batchCompletePercent: '0',
-          progressWidth: 'width: 0%',
-          showProgress:false,
-          showInput: false,
-          ws:'',
-          wsl:''
-    	  },
-    	  methods: {
-             connectSocket() {
-                 if (this.email == "") {
-                    alert("이메일을 입력해 주세요!");
-                    return;
-                 }
+<script>
+  var app = new Vue({
+    el: '#app',
+    data: {
+      name: 'Vue',
+      testData: 'log data',
+      stockName: '삼성전자',
+      email: '',
+      batchCompleteNum: 0,
+      batchCompletePercent: '0',
+      progressWidth: 'width: 0%',
+      showProgress: false,
+      showInput: false,
+      ws: '',
+      wsl: '',
+      basketIdx: 0,
+      basketLists: []
+    },
+    methods: {
+      connectSocket() {
+        if (this.email == "") {
+          alert("이메일을 입력해 주세요!");
+          return;
+        }
 
-                 this.ws = new WebSocket("ws://127.0.0.1:5678/");
-                 try{
-                   this.wsl = new WebSocket("ws://127.0.0.1:6789/");
-                 }catch(err){
+        this.ws = new WebSocket("ws://127.0.0.1:5678/");
+        try {
+          this.wsl = new WebSocket("ws://127.0.0.1:6789/");
+        } catch (err) {
 
-                 }
-                 this.batchCompleteNum = 0;
-                 this.showProgress = true;
+        }
+        this.batchCompleteNum = 0;
+        this.showProgress = true;
 
-                 var vm = this;
-                  this.wsl.onopen = function (event) {
-                   vm.wsl.send("con");
-                 }
+        var vm = this;
+        this.wsl.onopen = function(event) {
+          vm.wsl.send("con");
+        }
 
-                 this.ws.onmessage = function (event) {
-                     var jdata = JSON.parse(event.data);
-                     if (jdata["batch"] != undefined) {
+        this.ws.onmessage = function(event) {
+          var jdata = JSON.parse(event.data);
+          if (jdata["batch"] != undefined) {
 
-                         var jdataInfo =  JSON.parse(jdata["batch"]);
+            var jdataInfo = JSON.parse(jdata["batch"]);
 
-                         var 종목코드 = jdataInfo["종목코드"];
-                         var 종목한글약명 = jdataInfo["종목한글약명"];
+            var 종목코드 = jdataInfo["종목코드"];
+            var 종목한글약명 = jdataInfo["종목한글약명"];
 
-                         vm.testData = 종목코드+" "+종목한글약명;
-                         vm.batchCompleteNum += 1;
-                         var percent = parseInt(vm.batchCompleteNum/2968 * 100)
-                         if(percent > 10){
-                          vm.batchCompletePercent = parseInt(vm.batchCompleteNum/2968 * 100 / 2)  * 2;
-                         }
-                         vm.progressWidth = parseInt(vm.batchCompleteNum/2968 * 100 / 10) * 10 +"%";
-                         localStorage.setItem(종목한글약명, 종목코드);
-
-                         if(vm.batchCompleteNum == 2968){
-                           vm.showProgress = false;
-                           vm.showInput = true;
-                         }
-                         //vm.exwin.document.body.innerHTML = 종목코드+" "+종목한글약명;
-
-                         //vm.$ls.set('tdata', 종목코드);
-                         //this.close()
-                     }else if (jdata["quote"] != undefined) {
-
-                        var jdataInfo =  JSON.parse(jdata["quote"]);
-
-                        var 종목코드 = jdataInfo["종목코드"];
-
-                        localStorage.setItem("q_"+종목코드, jdata["quote"]);
-
-                        // if(종목코드=="6CZ16"){
-                        //   this.close()
-                        // }
-                     }else if (jdata["tightening"] != undefined) {
-                        var jdataInfo =  JSON.parse(jdata["tightening"]);
-
-                        var 종목코드 = jdataInfo["종목코드"];
-
-                        localStorage.setItem("t_"+종목코드, jdata["tightening"]);
-                     }
-                 };
-             },
-             disconnectSocket(){
-                this.ws.close();
-                this.wsl.close();
-             },
-             getStock() {
-                var stockNum = localStorage.getItem(this.stockName);
-                if (stockNum === null){
-                  alert("없는 종목입니다.");
-                } else {
-                this.ws.send("{\"key\":\""+stockNum+"\"}");
-                try{
-                  this.wsl.send(localStorage.getItem(this.stockName));
-                }catch(err){
-
-                }
-                this.exwin = window.open("stock.html?name="+this.stockName, "", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=350,height=430,top="+(screen.height-700)+",left="+(screen.width-1540));
-              }
+            vm.testData = 종목코드 + " " + 종목한글약명;
+            vm.batchCompleteNum += 1;
+            var percent = parseInt(vm.batchCompleteNum / 2968 * 100)
+            if (percent > 10) {
+              vm.batchCompletePercent = parseInt(vm.batchCompleteNum / 2968 * 100 / 2) * 2;
             }
             vm.progressWidth = parseInt(vm.batchCompleteNum / 2968 * 100 / 10) * 10 + "%";
             localStorage.setItem(종목한글약명, 종목코드);
 
             localStorage.setItem(종목코드, 종목한글약명); //hz orderStock
-            localStorage.setItem('idxKSP'+vm.batchCompleteNum, 종목코드); //hz orderStock
+            localStorage.setItem('idxKSP' + vm.batchCompleteNum, 종목코드); //hz orderStock
 
             if (vm.batchCompleteNum == 2968) {
               vm.showProgress = false;
@@ -190,15 +143,13 @@
             // }
           } else if (jdata["tightening"] != undefined) {
             var jdataInfo = JSON.parse(jdata["tightening"]);
-
             var 종목코드 = jdataInfo["종목코드"];
-
             localStorage.setItem("t_" + 종목코드, jdata["tightening"]);
 
-          } else if (jdata["result"] != undefined) {//hz order result
+          } else if (jdata["result"] != undefined) {//hz 체결결과
             var jdataInfo = JSON.parse(jdata["result"]);
-            var 바스켓이름 = jdataInfo["바스켓이름"];
-            localStorage.setItem("o_" + 바스켓이름, jdata["result"]);
+            var basketName = jdataInfo["basketName"];
+            localStorage.setItem("o_" + basketName, jdata["result"]);
           }
         };
       },
@@ -207,21 +158,25 @@
         this.wsl.close();
       },
       getStock() {
-        if (localStorage.getItem(this.stockName) === null) {
+        var stockNum = localStorage.getItem(this.stockName);
+        if (stockNum === null) {
           alert("없는 종목입니다.");
         } else {
-          this.wsl.send(localStorage.getItem(this.stockName));
-          this.exwin = window.open("stock.html?name=" + this.stockName, "", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=350,height=400,top="
-          + (screen.height - 700) + ",left=" + (screen.width -1540));
+          this.ws.send("{\"key\":\"" + stockNum + "\"}");
+          try {
+            this.wsl.send(localStorage.getItem(this.stockName));
+          } catch (err) {
+
+          }
+          this.exwin = window.open("stock.html?name=" + this.stockName, "", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=350,height=430,top=" + (screen.height - 700) + ",left=" + (screen.width -
+            1540));
         }
       },
       orderStock() {
         this.basketIdx += 1;
-        this.basketLists.push("basket"+this.basketIdx);
-        this.exwin = window.open("orderStock.html?basketNameParam=" + this.basketLists[this.basketIdx-1], "", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=600,height=700,top="
-        + (screen.height - 1000) + ",left=" + (screen.width -1200));
-        // this.exwin = window.open("orderStock.html?toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=600,height=900,top="
-        // + (screen.height - 700) + ",left=" + (screen.width -1540));
+        this.basketLists.push("basket" + this.basketIdx);
+        this.exwin = window.open("orderStock.html?basketNameParam=" + this.basketLists[this.basketIdx - 1], "", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=600,height=700,top=" +
+          (screen.height - 1000) + ",left=" + (screen.width - 1200));
       }
     }
   });

@@ -219,7 +219,7 @@
             //서버로부터 체결결과 받기
             var jdata = JSON.parse(e.newValue);
             var tmpStockCode = jdata["stock"];
-            vm.tighteningQntyMap[tmpStockCode] = jdata["체결수량"];
+            vm.tighteningQntyMap[tmpStockCode] = jdata["num"];
             vm.tighteningQntyMap = _.clone(vm.tighteningQntyMap);
           }
         }); //window
