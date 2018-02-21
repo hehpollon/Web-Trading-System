@@ -17,12 +17,19 @@
     <div id="app" style="height: 80%;">
       <div class="stockName stitle">
         {{ stockName }}
+        {{ temp }}
 
-        <div v-bind:class="[beforeDay==2 ? bluecolor : redcolor]">
+        <div v-bind:class="[beforeDay > 3 ? bluecolor : redcolor]">
           {{ percent }}%
         </div>
       </div>
-      <div>
+      <div class="toggle">
+        <input type="checkbox" id="unchecked" class="cbx hidden" v-model="checked"/>
+        <label for="unchecked" class="lbl"></label>
+      </div>
+
+      <div class="tlabel">
+        10호가
       </div>
       <table class="table" v-cloak>
         <tbody style="height: 80%;">
@@ -42,7 +49,7 @@
               <font color="white">시장가매수</font>
             </td>
           </tr>
-          <tr align="right" class="sell" v-for="n in [4,3,2,1,0]">
+          <tr align="right" class="sell" v-for="n in rcounter">
             <td class="sBackground">{{snum[n]}}</td>
             <td class="sBackground">{{sbal[n]}}</td>
             <td class="sBackground spr" v-bind:class="[sswitch[n]==1 ? smatch : '']">{{spr[n]}}</td>
@@ -50,7 +57,7 @@
             <td class="snBackground"></td>
           </tr>
 
-          <tr align="right" class="buy" v-for="n in [0,1,2,3,4]">
+          <tr align="right" class="buy" v-for="n in counter">
             <td class="bnBackground infoText" v-if="n==0"> 체결가 </td>
             <td class="bnBackground infoText" v-if="n==0"> 거래량 </td>
             <td class="bnBackground contractor" v-bind:class="[sbswitch[n]==2 ? bluecolor : '']" v-if="n>0">{{contractor[n]}}</td>
@@ -148,11 +155,30 @@ var app = new Vue({
           sswitch:[],
           beforeDay:'',
           percent:'',
-          temp:''
+          temp:'',
+          beforeDayPrice:'',
+          counter:[],
+          rcounter:[],
+          maxnum : 5,
+          checked:false
+        },
+        watch: {
+          checked: function (val, oldVal) {
+            if(val){
+              this.maxnum = 10;
+              window.resizeTo(350,750);
+              this.updateInfos();
+            }else{
+              this.maxnum = 5;
+              window.resizeTo(350,480);
+            }
+            this.computeLoop();
+          }
         },
         mounted () {
           setInterval(this.updateDateTime, 100);
-          this.listenStorage()
+          this.listenStorage();
+          this.computeLoop();
         },
         ready: function() {
           
@@ -163,7 +189,15 @@ var app = new Vue({
           }
         },
         methods: {
-           beforePageDestroyed: function (event) {
+          computeLoop () {
+            this.counter = [];
+            this.rcounter = [];
+            for(var i = 0 ; i < this.maxnum; i++) {
+              this.counter.push(i);
+              this.rcounter.push(this.maxnum-1-i);
+           } 
+          },
+          beforePageDestroyed: function (event) {
               console.log('beforePageDestroyed');
               alert("beforePageDestroyed");
           },
@@ -175,9 +209,10 @@ var app = new Vue({
             this.hourtime = getHourTime(this.hours)
             this.hours = this.hours % 12 || 12
           },
-          updateInfos(vm, event) {
-
-
+          updateInfos() {
+              var stockNum = localStorage.getItem(this.stockName);
+              var curval = localStorage.getItem("q_"+stockNum);
+              localStorage.setItem("q_"+stockNum,curval + ";");
             
           },
           listenStorage () {
@@ -195,7 +230,7 @@ var app = new Vue({
                 vm.bbal = [];
                 vm.bnum = [];
 
-                for(i = 1; i <=5; i++) {
+                for(i = 1; i <=10; i++) {
                   vm.spr.push(comma(jdata["매도호가"+i]*1+""));
                   vm.sbal.push(jdata["매도호가_잔량"+i]*1+"");
                   vm.snum.push(jdata["매도"+i+"단계우선호가건수"]);
@@ -205,45 +240,36 @@ var app = new Vue({
                 }
               } else if(e.key == "t_"+stockNum) {
 
+                vm.bswitch = [];
+                vm.sswitch = [];
 
                 var jdata = JSON.parse(e.newValue);
                 var price = comma(jdata["체결가격"]*1+"");
 
-                vm.beforeDay = jdata["전일대비(기준가대비)구분"]*1+""
-                vm.percent = ((jdata["전일대비"]*1)/(jdata["체결가격"]*1)*100).toFixed(2)
-                if(vm.beforeDay == 2) {
-                  vm.percent = "-"+vm.percent;
-                }else{
-                  vm.percent = "+"+vm.percent;
-                }
+                vm.beforeDay = parseInt(jdata["전일대비(기준가대비)구분"])
+                vm.beforeDayPrice = parseInt(jdata["체결가격"]) + 
+                  (parseInt(jdata["전일대비"])*(jdata["전일대비(기준가대비)구분"]>3 ? -1 : 1))
+                vm.percent = (parseInt(jdata["전일대비"])/vm.beforeDayPrice*100).toFixed(2)
+
+                
+                vm.percent = vm.beforeDay > 3 ? "-"+vm.percent : "+"+vm.percent
 
                 vm.contractor.push(price)
                 vm.volume.push(comma(jdata["체결수량"]*1+""));
                 vm.sbswitch.push(jdata["최종매도매수구분코드"]);
-                if(vm.contractor.length > 5) {
+
+                if(vm.contractor.length > 10) {
                   vm.contractor.shift();
-                }
-                if(vm.volume.length > 5) {
                   vm.volume.shift();
-                }
-                if(vm.sbswitch.length > 5) {
                   vm.sbswitch.shift();
                 }
-                vm.bswitch = [];
-                for(i = 0; i <5; i++) {
-                  if(price == vm.bpr[i]) {
-                    vm.bswitch.push(1);
-                  }else{
-                    vm.bswitch.push(0);
-                  }
+                
+                if(vm.maxnum == 5) {
                 }
-                vm.sswitch = [];
-                for(i = 0; i <5; i++) {
-                  if(price == vm.spr[i]) {
-                    vm.sswitch.push(1);
-                  }else{
-                    vm.sswitch.push(0);
-                  }
+
+                for(i = 0; i <10; i++) {
+                  price == vm.bpr[i] ? vm.bswitch.push(1) : vm.bswitch.push(0);
+                  price == vm.spr[i] ? vm.sswitch.push(1) : vm.sswitch.push(0);
                 }
               }
             });
@@ -259,6 +285,10 @@ var app = new Vue({
     th,
     td {
       border: 1px solid #ffffff;
+    }
+    .tlabel{
+      float: right;
+      font-size: 12px;
     }
     .infoText{
       color: black;
@@ -281,6 +311,7 @@ var app = new Vue({
     }
     .stockName {
       padding: 5px;
+      float: left;
     }
     body {
      background-color: #F6F6F8;
@@ -326,6 +357,56 @@ var app = new Vue({
    .pmatch {
     border: 1px solid #565656;
    }
+   .toggle{
+    float: right;
+    margin-top: 4px;
+    margin-left: 2px;
+   }
+
+
+
+   .lbl {
+  position: relative;
+  display: block;
+  height: 10px;
+  width: 22px;
+  background: #898989;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.lbl:after {
+  position: absolute;
+  left: -1px;
+  top: -2px;
+  display: block;
+  width: 13px;
+  height: 13px;
+  border-radius: 50px;
+  background: #fff;
+  box-shadow: 0px 3px 3px rgba(0,0,0,0.05);
+  content: '';
+  transition: all 0.3s ease;
+}
+
+.lbl:active:after { transform: scale(1.15, 0.85); }
+
+.cbx:checked ~ label { background: #6fbeb5; }
+
+.cbx:checked ~ label:after {
+  left: 10px;
+  background: #179588;
+}
+
+.cbx:disabled ~ label {
+  background: #d5d5d5;
+  pointer-events: none;
+}
+
+.cbx:disabled ~ label:after { background: #bcbdbc; }
+
+.hidden { display: none; }
   </style>
 
 </html>

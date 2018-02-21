@@ -79,7 +79,11 @@
                  }
 
                  this.ws = new WebSocket("ws://127.0.0.1:5678/");
-                 this.wsl = new WebSocket("ws://127.0.0.1:6789/");
+                 try{
+                   this.wsl = new WebSocket("ws://127.0.0.1:6789/");
+                 }catch(err){
+
+                 }
                  this.batchCompleteNum = 0;
                  this.showProgress = true;
     
@@ -139,11 +143,17 @@
                 this.wsl.close();
              },
              getStock() {
-                if (localStorage.getItem(this.stockName) === null){
+                var stockNum = localStorage.getItem(this.stockName);
+                if (stockNum === null){
                   alert("없는 종목입니다.");
                 } else {
-                this.wsl.send(localStorage.getItem(this.stockName));
-                this.exwin = window.open("stock.html?name="+this.stockName, "", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=350,height=400,top="+(screen.height-700)+",left="+(screen.width-1540));
+                this.ws.send("{\"key\":\""+stockNum+"\"}");
+                try{
+                  this.wsl.send(localStorage.getItem(this.stockName));  
+                }catch(err){
+                  
+                }
+                this.exwin = window.open("stock.html?name="+this.stockName, "", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=350,height=430,top="+(screen.height-700)+",left="+(screen.width-1540));
               }
             }
          }
