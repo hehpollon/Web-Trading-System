@@ -169,7 +169,6 @@ var app = new Vue({
             if(val){
               this.maxnum = 10;
               window.resizeTo(350,750);
-              this.updateInfos();
               this.adder = 0;
             }else{
               this.maxnum = 5;
@@ -213,17 +212,9 @@ var app = new Vue({
             this.hourtime = getHourTime(this.hours)
             this.hours = this.hours % 12 || 12
           },
-          updateInfos() {
-              var stockNum = localStorage.getItem(this.stockName);
-              var curval = localStorage.getItem("q_"+stockNum);
-              localStorage.setItem("q_"+stockNum,curval + ";");
-            
-          },
-          listenStorage () {
-            var vm = this;
+          updateInfos(vm, e){
             var stockNum = localStorage.getItem(vm.stockName)
-            window.addEventListener('storage', function(e) {
-              if(e.key == "q_"+stockNum) {
+            if(e.key == "q_"+stockNum) {
                 var jdata = JSON.parse(e.newValue);
 
 
@@ -276,10 +267,27 @@ var app = new Vue({
                   price == vm.spr[i] ? vm.sswitch.push(1) : vm.sswitch.push(0);
                 }
               }
+          },
+          listenStorage () {
+            var vm = this;
+            var stockNum = localStorage.getItem(vm.stockName)
+            window.addEventListener('storage', function(e) {
+              vm.updateInfos(vm, e);
             });
             if (this.firstStart){
-              
-              this.firstStart = false;
+              try{
+                this.firstStart = false;
+                header = ["q_","t_"]
+                for (i in header) {
+                  event = {}
+                  event.key = header[i] + stockNum
+                  event.newValue = localStorage.getItem(header[i] + stockNum)
+                  this.updateInfos(this, event);
+                }
+                
+              }catch(err){
+
+              }
             }
           }
         }
