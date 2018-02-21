@@ -105,7 +105,7 @@
         }
 
         this.ws.onmessage = function(event) {
-          var totalNum = 884;
+          var totalNum = 883;
           var jdata = JSON.parse(event.data);
           if (jdata["batch"] != undefined) {
 
@@ -118,6 +118,8 @@
 
             var 종목코드 = jdataInfo["종목코드"];
             var 종목한글약명 = jdataInfo["종목한글약명"];
+            
+            localStorage.setItem("l_" + 종목코드, jdataInfo["전일종가"]);
 
             vm.stockNameList.push(종목한글약명);
 
