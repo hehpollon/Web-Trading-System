@@ -9,21 +9,21 @@
   <link rel="icon" href="src/assets/favicon.ico" type="image/x-icon">
   <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
   <script src="https://unpkg.com/vue/dist/vue.js"></script>
-  
+
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
   <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
   <title>STS</title>
 </head>
 
 <body>
   <div class="logo">
-    <img src="src/assets/favicon.ico" width="40px" alt="Vue.js"> 
+    <img src="src/assets/favicon.ico" width="40px" alt="Vue.js">
   </div>
   <div id="app">
-    <div class="container login" v-if="showInput == false" >
+    <div class="container login" v-if="showInput == false">
       <input type="email" class="form-control email" v-model="email" placeholder="ID"></input>
       <input type="password" class="form-control pw" placeholder="password"></input>
     </div>
@@ -39,218 +39,250 @@
     <div>
       <div class=" progress" v-if="showProgress == true">
         <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" :aria-valuenow="batchCompleteNum" aria-valuemin="0" aria-valuemax="2968" :style="{ width: progressWidth }">
-         {{ batchCompletePercent }} %
+          {{ batchCompletePercent }} %
+        </div>
       </div>
-    </div>
-      
+
     </div>
     <div class="inputBox shadow" v-if="showInput == true">
-      <input type="text" v-model="stockName"  placeholder="stock" required >
-      
+      <input type="text" v-model="stockName" placeholder="stock" required>
+
       <button class="getStock" v-on:click="getStock()">
         open
+      </button>
+    </div>
+    <h1>  </h1>
+    <div v-if="showInput == true">
+      <button class="btn btn-secondary" v-on:click="orderStock()">
+        Order
       </button>
     </div>
   </div>
   <br>
   <br>
 </body>
-  <script>
-    var app = new Vue({
-    	  el: '#app',
-    	  data: {
-    	  	name: 'Vue',
-          testData: 'log data',
-          stockName: '삼성전자',
-          email:'',
-          batchCompleteNum : 0,
-          batchCompletePercent: '0',
-          progressWidth: 'width: 0%',
-          showProgress:false,
-          showInput: false,
-          ws:'',
-          wsl:''
-    	  },
-    	  methods: {
-             connectSocket() {
-                 if (this.email == "") {
-                    alert("이메일을 입력해 주세요!");
-                    return;
-                 }
+<script>
+  var app = new Vue({
+    el: '#app',
+    data: {
+      name: 'Vue',
+      testData: 'log data',
+      stockName: '삼성전자',
+      email: '',
+      batchCompleteNum: 0,
+      batchCompletePercent: '0',
+      progressWidth: 'width: 0%',
+      showProgress: false,
+      showInput: false,
+      ws: '',
+      wsl: '',
+      basketIdx: 0,
+      basketLists:[]
+    },
+    methods: {
+      connectSocket() {
+        if (this.email == "") {
+          alert("이메일을 입력해 주세요!");
+          return;
+        }
 
-                 this.ws = new WebSocket("ws://127.0.0.1:5678/");
-                 this.wsl = new WebSocket("ws://127.0.0.1:6789/");
-                 this.batchCompleteNum = 0;
-                 this.showProgress = true;
-    
-                 var vm = this;
-                  this.wsl.onopen = function (event) {
-                   vm.wsl.send("con");
-                 }
-    
-                 this.ws.onmessage = function (event) {
-                     var jdata = JSON.parse(event.data);
-                     if (jdata["batch"] != undefined) {
-                         
-                         var jdataInfo =  JSON.parse(jdata["batch"]);
-                         
-                         var 종목코드 = jdataInfo["종목코드"];
-                         var 종목한글약명 = jdataInfo["종목한글약명"];
-    
-                         vm.testData = 종목코드+" "+종목한글약명;
-                         vm.batchCompleteNum += 1;
-                         var percent = parseInt(vm.batchCompleteNum/2968 * 100)
-                         if(percent > 10){
-                          vm.batchCompletePercent = parseInt(vm.batchCompleteNum/2968 * 100 / 2)  * 2;
-                         }
-                         vm.progressWidth = parseInt(vm.batchCompleteNum/2968 * 100 / 10) * 10 +"%";
-                         localStorage.setItem(종목한글약명, 종목코드);
+        this.ws = new WebSocket("ws://127.0.0.1:5678/");
+        this.wsl = new WebSocket("ws://127.0.0.1:6789/");
+        this.batchCompleteNum = 0;
+        this.showProgress = true;
 
-                         if(vm.batchCompleteNum == 2968){
-                           vm.showProgress = false;
-                           vm.showInput = true;
-                         }
-                         //vm.exwin.document.body.innerHTML = 종목코드+" "+종목한글약명;
-    
-                         //vm.$ls.set('tdata', 종목코드);
-                         //this.close()
-                     }else if (jdata["quote"] != undefined) {
+        var vm = this;
+        this.wsl.onopen = function(event) {
+          vm.wsl.send("con");
+        }
 
-                        var jdataInfo =  JSON.parse(jdata["quote"]);
+        this.ws.onmessage = function(event) {
+          var jdata = JSON.parse(event.data);
+          if (jdata["batch"] != undefined) {
 
-                        var 종목코드 = jdataInfo["종목코드"];
+            var jdataInfo = JSON.parse(jdata["batch"]);
 
-                        localStorage.setItem("q_"+종목코드, jdata["quote"]);
-                        
-                        // if(종목코드=="6CZ16"){
-                        //   this.close()
-                        // }
-                     }else if (jdata["tightening"] != undefined) {
-                        var jdataInfo =  JSON.parse(jdata["tightening"]);
+            var 종목코드 = jdataInfo["종목코드"];
+            var 종목한글약명 = jdataInfo["종목한글약명"];
 
-                        var 종목코드 = jdataInfo["종목코드"];
-
-                        localStorage.setItem("t_"+종목코드, jdata["tightening"]);
-                     }
-                 };
-             },
-             disconnectSocket(){
-                this.ws.close();
-                this.wsl.close();
-             },
-             getStock() {
-                if (localStorage.getItem(this.stockName) === null){
-                  alert("없는 종목입니다.");
-                } else {
-                this.wsl.send(localStorage.getItem(this.stockName));
-                this.exwin = window.open("stock.html?name="+this.stockName, "", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=350,height=400,top="+(screen.height-700)+",left="+(screen.width-1540));
-              }
+            vm.testData = 종목코드 + " " + 종목한글약명;
+            vm.batchCompleteNum += 1;
+            var percent = parseInt(vm.batchCompleteNum / 2968 * 100)
+            if (percent > 10) {
+              vm.batchCompletePercent = parseInt(vm.batchCompleteNum / 2968 * 100 / 2) * 2;
             }
-         }
-    	});
-  </script>
-  <style>
-    .logo{
-      margin: 20px;
-    }
-    .loginBtn {
-      margin-top: 30px;
-      background-color: white;
-      width: 100px;
-      height: 30px;
-      font-size: 14px;
-      border: 1px solid #777777;
-      color: #555555;
-      border-radius: 5px;
-    }
+            vm.progressWidth = parseInt(vm.batchCompleteNum / 2968 * 100 / 10) * 10 + "%";
+            localStorage.setItem(종목한글약명, 종목코드);
 
-    .loginBtn:hover {
-      border: 1px solid #ffffff;
-      background-color: #555555;
-      color: #ffffff;
-    }
-    .progress {
-      margin-bottom: 20px;
-      margin-right: 30%;
-      margin-left: 30%;
-      margin-top: 20px;
-    }
+            localStorage.setItem(종목코드, 종목한글약명); //hz orderStock
+            localStorage.setItem('idxKSP'+vm.batchCompleteNum, 종목코드); //hz orderStock
 
-    .loginForm {
-      margin-right: 30%;
-      margin-left: 30%;
-    }
+            if (vm.batchCompleteNum == 2968) {
+              vm.showProgress = false;
+              vm.showInput = true;
+            }
+            //vm.exwin.document.body.innerHTML = 종목코드+" "+종목한글약명;
 
-    input:focus {
-      outline: none;
-    }
+            //vm.$ls.set('tdata', 종목코드);
+            //this.close()
+          } else if (jdata["quote"] != undefined) {
 
-    input {
-      width: 60%;
-      height: 35px;
-      padding: 0;
-    }
+            var jdataInfo = JSON.parse(jdata["quote"]);
 
-    .inputBox {
-      margin-top: 20px;
-      background: white;
-      border-radius: 5px;
-      text-align: center;
-      margin-left: 30%;
-      margin-right: 30%;
-      height: 50px;
-    }
+            var 종목코드 = jdataInfo["종목코드"];
 
-    .inputBox input {
-      border-style: none;
-      font-size: 0.9rem;
-    }
+            localStorage.setItem("q_" + 종목코드, jdata["quote"]);
 
-    .addContainer {
-      float: right;
-      background: linear-gradient(to right, #6478FB, #8763FB);
-      display: inline-block;
-      width: 3rem;
-      border-radius: 0 5px 5px 0;
-    }
+            // if(종목코드=="6CZ16"){
+            //   this.close()
+            // }
+          } else if (jdata["tightening"] != undefined) {
+            var jdataInfo = JSON.parse(jdata["tightening"]);
 
-    .getStock {
-      background: white;
-      border-radius: 4px;
-      width: 60px;
-      margin: 10px;
-      height: 32px;
-      align-items: flex-end; 
-    }
+            var 종목코드 = jdataInfo["종목코드"];
 
-    .addBtn {
-      color: white;
-      vertical-align: middle;
-    }
-    body {
-     text-align: center;
-     background-color: #F6F6F8;
-   }
-   input {
-     border-style: groove;
-     width: 200px;
-   }
-   button {
-     border-style: groove;
-   }
-   .shadow {
-     box-shadow: 5px 10px 10px rgba(0, 0, 0, 0.03)
-   }
-   .connectSocket{
+            localStorage.setItem("t_" + 종목코드, jdata["tightening"]);
 
-   }
-   .login{
-      width: 300px;
-      margin-bottom: 10px;
-   }
-   .email{
+          } else if (jdata["result"] != undefined) {//hz order result
+            var jdataInfo = JSON.parse(jdata["result"]);
+            var 바스켓이름 = jdataInfo["바스켓이름"];
+            localStorage.setItem("o_" + 바스켓이름, jdata["result"]);
+          }
+        };
+      },
+      disconnectSocket() {
+        this.ws.close();
+        this.wsl.close();
+      },
+      getStock() {
+        if (localStorage.getItem(this.stockName) === null) {
+          alert("없는 종목입니다.");
+        } else {
+          this.wsl.send(localStorage.getItem(this.stockName));
+          this.exwin = window.open("stock.html?name=" + this.stockName, "", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=350,height=400,top="
+          + (screen.height - 700) + ",left=" + (screen.width -1540));
+        }
+      },
+      orderStock() {
+        this.basketIdx += 1;
+        this.basketLists.push("basket"+this.basketIdx);
+        this.exwin = window.open("orderStock.html?basketNameParam=" + this.basketLists[this.basketIdx-1], "", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=600,height=700,top="
+        + (screen.height - 1000) + ",left=" + (screen.width -1200));
+        // this.exwin = window.open("orderStock.html?toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=600,height=900,top="
+        // + (screen.height - 700) + ",left=" + (screen.width -1540));
+      }
+    }
+  });
+</script>
+<style>
+  .logo {
+    margin: 20px;
+  }
+
+  .loginBtn {
+    margin-top: 30px;
+    background-color: white;
+    width: 100px;
+    height: 30px;
+    font-size: 14px;
+    border: 1px solid #777777;
+    color: #555555;
+    border-radius: 5px;
+  }
+
+  .loginBtn:hover {
+    border: 1px solid #ffffff;
+    background-color: #555555;
+    color: #ffffff;
+  }
+
+  .progress {
+    margin-bottom: 20px;
+    margin-right: 30%;
+    margin-left: 30%;
+    margin-top: 20px;
+  }
+
+  .loginForm {
+    margin-right: 30%;
+    margin-left: 30%;
+  }
+
+  input:focus {
+    outline: none;
+  }
+
+  input {
+    width: 60%;
+    height: 35px;
+    padding: 0;
+  }
+
+  .inputBox {
+    margin-top: 20px;
+    background: white;
+    border-radius: 5px;
+    text-align: center;
+    margin-left: 30%;
+    margin-right: 30%;
+    height: 50px;
+  }
+
+  .inputBox input {
+    border-style: none;
+    font-size: 0.9rem;
+  }
+
+  .addContainer {
+    float: right;
+    background: linear-gradient(to right, #6478FB, #8763FB);
+    display: inline-block;
+    width: 3rem;
+    border-radius: 0 5px 5px 0;
+  }
+
+  .getStock {
+    background: white;
+    border-radius: 4px;
+    width: 60px;
+    margin: 10px;
+    height: 32px;
+    align-items: flex-end;
+  }
+
+  .addBtn {
+    color: white;
+    vertical-align: middle;
+  }
+
+  body {
+    text-align: center;
+    background-color: #F6F6F8;
+  }
+
+  input {
+    border-style: groove;
+    width: 200px;
+  }
+
+  button {
+    border-style: groove;
+  }
+
+  .shadow {
+    box-shadow: 5px 10px 10px rgba(0, 0, 0, 0.03)
+  }
+
+  .connectSocket {}
+
+  .login {
+    width: 300px;
     margin-bottom: 10px;
-   }
-  </style>
+  }
+
+  .email {
+    margin-bottom: 10px;
+  }
+</style>
 
 </html>

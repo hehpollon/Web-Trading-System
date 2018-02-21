@@ -223,7 +223,7 @@ def batch(data, test=False):
 
 		if test:
 			print(i[0].strip(),result[i[0].strip()])
-		
+
 	return result
 
 # 실시간 호가 B6011
@@ -336,7 +336,7 @@ def realTimeTightening(data, test=False):
 			print(i[0],data[sum:sum+i[1]])
 		result[i[0].strip()] = data[sum:sum+i[1]].strip()
 		sum += i[1]
-		
+
 	return result
 
 def testData():
@@ -386,7 +386,7 @@ def generateByBatch():
 			securities[r["종목한글약명"]] = r["종목코드"]
 			securitiesNum[r["종목코드"]] = r["종목한글약명"]
 
-		
+
 	f.close()
 
 async def listenClient(websocket, path):
@@ -418,7 +418,7 @@ async def sendData(websocket):
 		await websocket.send(sdata)
 		await asyncio.sleep(0.0001)
 
-		# for testing	
+		# for testing
 		#break
 
 	f = open("./data/20180213.KSC","rb")
@@ -444,20 +444,20 @@ async def sendData(websocket):
 			r = realTimeTightening(line)
 			jdata = json.dumps(r, ensure_ascii=False)
 			tighteningMap[r["종목코드"]] = jdata
-			
+
 			temp["tightening"] = jdata
 			stockCode = r["종목코드"]
 			pass
 		elif code == b"B6011": # 실시간 호가
 			line = line[:-2].decode('euc-kr')
 			r = realTimeQuote(line)
- 
+
 			jdata = json.dumps(r, ensure_ascii=False)
 			quoteMap[r["종목코드"]] = jdata
 
 			temp["quote"] = jdata
 			stockCode = r["종목코드"]
-			
+
 			if int(r["매수호가5"]) > 0:
 				isSimultaneousCall = False
 			pass
@@ -482,7 +482,7 @@ async def runServer(websocket, path):
 
 	# t = threading.Thread(target=sendData, args=(websocket,))
 	# t.start()
- 
+
 	await sendData(websocket)
 
     # while True:
@@ -519,7 +519,7 @@ def readFromFile():
 			r = realTimeTightening(line)
 			jdata = json.dumps(r, ensure_ascii=False)
 			tighteningMap[r["종목코드"]] = jdata
-			
+
 			temp["tightening"] = jdata
 			pass
 		elif code == b"B6011": # 실시간 호가

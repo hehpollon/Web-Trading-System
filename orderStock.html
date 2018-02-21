@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html style="height: 100%;">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="shortcut icon" href="src/assets/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="src/assets/favicon.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
+  <script src="https://unpkg.com/vue/dist/vue.js"></script>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+  <title>STS Basket</title>
+</head>
+
+<body style="height: 90%;" v-cloak>
+  <div id="app" style="height: 80%;">
+    <div class="orderBox">
+      <div class="basketName">
+        {{ basketName }}
+      </div>
+      <div class="inputBox shadow">
+        <input type="text" v-model="randomValue" placeholder="Random 10" class="form-control" required/>
+      </div>
+      <button class="btn btn-outline-info orderbtn" v-on:click="orderBtnClick()">
+      주문
+      </button>
+      <button class="btn btn-outline-warning orderbtn" v-on:click="createRandOdrList()">
+      OK
+      </button>
+    </div>
+
+    <table width='600' border="1" align="center">
+      <colgroup>
+        <col width='5%' />
+        <col width='10%' />
+        <col width='20%' />
+        <col width='25%' />
+        <col width='20%' />
+        <col width='10%' />
+        <col width='10%' />
+      </colgroup>
+      <tr id='row1' bgcolor="#1FB4C2">
+        <td align='center' class="basketTitle"> No. </td>
+        <td align='center' class="basketTitle"> Rnd# </td>
+        <td align='center' class="basketTitle"> 코드 </td>
+        <td align='center' class="basketTitle"> 종목명 </td>
+        <td align='center' class="basketTitle"> 현재가 </td>
+        <td align='center' class="basketTitle"> 주문수량 </td>
+        <td align='center' class="basketTitle"> 체결수량 </td>
+      </tr>
+
+      <tr id='row1' class="basketContents" v-for="mlist in list">
+        <td align='center' class="idxColor"> {{inxMap[mlist]+1}} </td>
+        <td align='center' class="idxColor"> {{rndMap[mlist]}} </td>
+        <td align='center'> {{codeMap[mlist]}} </td>
+        <td align='center' class="curPrice"> {{stockNameMap[mlist]}} </td>
+        <td align='center' class="curPrice"> {{curPriceMap[mlist]}} </td>
+        <td align='center' class="buy"> {{orderQntyMap[mlist]}} </td>
+        <td align='center' class="idxColor"> {{tighteningQntyMap[mlist]}} </td>
+      </tr>
+
+    </table>
+    <table id='tableDynid' width='500' border="1" align="center">
+      <colgroup>
+        <col width='10%' />
+        <col width='10%' />
+        <col width='20%' />
+        <col width='25%' />
+        <col width='10%' />
+        <col width='10%' />
+        <col width='15%' />
+      </colgroup>
+
+    </table>
+  </div>
+</body>
+
+<script>
+  //세번째 자리 콤마
+  function comma(rawNum) {
+    var len, point, str;
+
+    var num = rawNum.split(".")[0]
+    var fnum = rawNum.split(".")[1]
+    num = num + "";
+    point = num.length % 3;
+    len = num.length;
+
+    str = num.substring(0, point);
+    while (point < len) {
+      if (str != "") str += ",";
+      str += num.substring(point, point + 3);
+      point += 3;
+    }
+    if (fnum != undefined && fnum.length > 0) {
+      str = str + "." + fnum
+    }
+
+    return str;
+  }
+
+  var getParam = function(key) {
+    var _parammap = {};
+    document.location.search.replace(/\??(?:([^=]+)=([^&]*)&?)/g, function() {
+      function decode(s) {
+        return decodeURIComponent(s.split("+").join(" "));
+      }
+
+      _parammap[decode(arguments[1])] = decode(arguments[2]);
+    });
+
+    return _parammap[key];
+  };
+
+
+  var app = new Vue({
+    el: '#app',
+    data: {
+      name: 'VueApp',
+      basketName: getParam("basketNameParam"),
+      list: [],
+      rdmIdxLists: [],
+      orderQntyLists: [],
+      stockNameMap: {},
+      inxMap: {},
+      rndMap: {},
+      codeMap: {},
+      curPriceMap: {},
+      orderQntyMap: {},
+      tighteningQntyMap: {},
+      wsl: ''
+    },
+    mounted() {
+      //setInterval(this.updateDateTime, 100);
+      this.listenStorageORD();
+      this.wsl = new WebSocket("ws://127.0.0.1:6789/");
+    },
+    methods: {
+      orderBtnClick() {
+        //웹소켓 서버 주문요청
+        if (this.rdmIdxLists.length == 0)
+          alert("바스켓 리스트를 생성하세요.");
+
+        //JSON 생성
+        var orderArray = new Array();
+        for (var l = 0; l < this.list.length; l++) {
+          var orderSmallInfo = new Object();
+          orderSmallInfo.stock = this.list[l];
+          orderSmallInfo.num = this.orderQntyLists[l];
+          orderArray.push(orderSmallInfo);
+        }
+
+        var orderBasketInfo = new Object();
+        orderBasketInfo.basketName = this.basketName;
+        orderBasketInfo.orderLists = orderArray;
+
+        var jsonInfo = JSON.stringify(orderBasketInfo);
+        console.log("jsonInfo: " + jsonInfo);
+        var vm = this;
+        vm.wsl.send(orderBasketInfo); //서버전송
+      },
+
+      createRandOdrList() {
+        if (this.randomValue == null) {
+          this.randomValue = 10;
+        }
+        for (var j = 0; j < this.randomValue; j++) {
+          var idx_tmpValue = Math.floor(Math.random() * 2967); //KOSPI num = 903 //2968개
+          var rndOrderQnty = Math.floor((Math.random() * 100) + 1);
+          this.rdmIdxLists.push(idx_tmpValue);
+          this.list.push(localStorage.getItem('idxKSP' + idx_tmpValue));
+          //console.log("this.rdmIdxLists(idx) length: " + this.rdmIdxLists.length);
+          this.orderQntyLists.push(rndOrderQnty);
+        }
+        console.log("this.rdmIdxLists : " + this.rdmIdxLists);
+        this.addDynamicRow(tableDynid);
+      },
+
+      addDynamicRow(table_id) {
+        var rowlen = table_id.rows.length;
+        //this.list = [];//hz1
+        for (var i = 0; i < this.rdmIdxLists.length; i++) {
+          var row = table_id.insertRow(rowlen - 1);
+          var stockCode = this.list[i];
+          var stockName = localStorage.getItem(stockCode);
+
+          var vm = this;
+          vm.wsl.send(stockCode);
+          console.log(stockCode)
+          this.stockNameMap[stockCode] = stockName;
+          this.curPriceMap[stockCode] = 0;
+          this.inxMap[stockCode] = i;
+          this.codeMap[stockCode] = stockCode;
+          this.rndMap[stockCode] = this.rdmIdxLists[i];
+          this.orderQntyMap[stockCode] = this.orderQntyLists[i];
+          this.tighteningQntyMap[stockCode] = 0;
+        }
+      },
+
+      listenStorageORD() {
+        var vm = this;
+        window.addEventListener('storage', function(e) {
+          for (mlist in vm.list) {
+            var num = vm.list[mlist];
+            if (e.key == "t_" + num) {
+              var jdata = JSON.parse(e.newValue);
+              vm.curPriceMap[num] = comma(jdata["체결가격"] * 1 + "");
+              console.log("vm.curPriceMap[num]: " + vm.curPriceMap[num]);
+              vm.curPriceMap = _.clone(vm.curPriceMap);
+            }
+          }
+          if (e.key == "o_" + vm.basketName) {
+            //서버로부터 체결결과 받기
+            var jdata = JSON.parse(e.newValue);
+            var tmpStockCode = jdata["stock"];
+            vm.tighteningQntyMap[tmpStockCode] = jdata["체결수량"];
+            vm.tighteningQntyMap = _.clone(vm.tighteningQntyMap);
+          }
+        }); //window
+      } //listenStorageORD()
+
+    } //methods
+  })
+</script>
+
+
+<style type="text/css">
+  table,
+  th,
+  td {
+    border: 1px solid #ffffff;
+  }
+
+  .orderbtn {
+    float: right;
+    margin-top: 5px;
+    margin-right: 10px;
+  }
+
+  .stockName {
+    padding: 5px;
+  }
+
+  body {
+    background-color: #F6F6F8;
+  }
+
+  .table {
+    width: 100%;
+    height: 100%;
+    margin-left: 5px;
+    margin-right: 10px;
+  }
+
+  input:focus {
+    outline: none;
+  }
+
+  input {
+    width: 60%;
+    height: 50px;
+    padding: 0;
+  }
+
+  .orderBox {
+    margin-top: 20px;
+    border-radius: 5px;
+    text-align: center;
+    margin-left: 70px;
+    margin-right: 115px;
+    height: 50px;
+
+    margin-bottom: 20px;
+  }
+
+  .inputBox {
+    float: left;
+    background: white;
+    border-radius: 5px;
+    margin-left: 70px;
+    text-align: center;
+    height: 50px;
+  }
+
+  .inputBox input {
+    border-style: none;
+    font-size: 0.9rem;
+  }
+
+  button {
+    border-style: groove;
+  }
+
+  .shadow {
+    box-shadow: 5px 10px 10px rgba(0, 0, 0, 0.03)
+  }
+
+  .curPrice {
+    color: #0D46C8;
+  }
+
+  .buy {
+    color: #E6050A;
+  }
+
+  .basketTitle {
+    color: #00272B;
+  }
+
+  .idxColor {
+    color: #688A8D;
+  }
+
+  .basketName {
+    padding: 5px;
+    color: #00272B;
+    float:left;
+    margin-top: 5px;
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  #app {
+    height: 100%;
+  }
+</style>
+
+</html>

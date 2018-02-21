@@ -159,7 +159,7 @@ function comma(rawNum){
    return str;
 }
 
-  
+
 
 
 
@@ -219,7 +219,7 @@ var app = new Vue({
           this.listenStorage()
         },
         ready: function() {
-          
+
         },
         computed: {
           currentTime: function () {
@@ -242,7 +242,7 @@ var app = new Vue({
           listenStorage () {
             var vm = this;
             var stockNum = localStorage.getItem(vm.stockName)
-            window.addEventListener('storage', function(e) { 
+            window.addEventListener('storage', function(e) {
               if(e.key == "q_"+stockNum) {
                 var jdata = JSON.parse(e.newValue);
                 vm.spr1 = jdata["매도호가1"]*1+"";
