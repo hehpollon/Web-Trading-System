@@ -25,9 +25,9 @@
         {{ basketName }}
       </div>
       <div class="inputBox shadow">
-        <input type="text" v-model="randomValue" placeholder="Random 10" class="form-control" required/>
+        <input type="text" v-model="randomValue" placeholder="Random 25" class="form-control" required/>
       </div>
-      <button class="btn btn-outline-info orderbtn" v-on:click="orderBtnClick()">
+      <button id="btnOrder"class="btn btn-outline-info orderbtn" data-toggle="button" aria-pressed="false" v-on:click="orderBtnClick()">
       주문
       </button>
       <button class="btn btn-outline-warning orderbtn" v-on:click="createRandOdrList()">
@@ -40,41 +40,41 @@
         <col width='5%' />
         <col width='10%' />
         <col width='20%' />
-        <col width='25%' />
-        <col width='20%' />
+        <col width='30%' />
+        <col width='15%' />
         <col width='10%' />
         <col width='10%' />
       </colgroup>
       <tr id='row1' bgcolor="#1FB4C2">
-        <td align='center' class="basketTitle"> No. </td>
-        <td align='center' class="basketTitle"> Rnd# </td>
-        <td align='center' class="basketTitle"> 코드 </td>
-        <td align='center' class="basketTitle"> 종목명 </td>
-        <td align='center' class="basketTitle"> 현재가 </td>
-        <td align='center' class="basketTitle"> 주문수량 </td>
-        <td align='center' class="basketTitle"> 체결수량 </td>
+        <td align='center' class="fontSize"> No. </td>
+        <td align='center' class="fontSize"> Rnd# </td>
+        <td align='center' class="fontSize"> 종목코드 </td>
+        <td align='center' class="fontSize"> 종목명 </td>
+        <td align='center' class="fontSize"> 현재가 </td>
+        <td align='center' class="fontSize"> 주문수량 </td>
+        <td align='center' class="fontSize"> 체결수량 </td>
       </tr>
 
       <tr id='row1' class="basketContents" v-for="mlist in list">
-        <td align='center' class="idxColor"> {{inxMap[mlist]+1}} </td>
-        <td align='center' class="idxColor"> {{rndMap[mlist]}} </td>
-        <td align='center'> {{codeMap[mlist]}} </td>
-        <td align='center' class="curPrice"> {{stockNameMap[mlist]}} </td>
-        <td align='center' class="curPrice"> {{curPriceMap[mlist]}} </td>
-        <td align='center' class="buy"> {{orderQntyMap[mlist]}} </td>
-        <td align='center' class="idxColor"> {{tighteningQntyMap[mlist]}} </td>
+        <td align='center' class="idxColor fontSize"> {{inxMap[mlist]+1}} </td>
+        <td align='center' class="idxColor fontSize"> {{rndMap[mlist]}} </td>
+        <td align='center' class="fontSize"> {{codeMap[mlist]}} </td>
+        <td align='center' class="curPrice fontSize"> {{stockNameMap[mlist]}} </td>
+        <td align='center' class="curPrice fontSize"> {{curPriceMap[mlist]}} </td>
+        <td align='center' class="buy fontSize"> {{orderQntyMap[mlist]}} </td>
+        <td align='center' class="idxColor fontSize"> {{tighteningQntyMap[mlist]}} </td>
       </tr>
 
     </table>
     <table id='tableDynid' width='500' border="1" align="center">
       <colgroup>
-        <col width='10%' />
+        <col width='5%' />
         <col width='10%' />
         <col width='20%' />
-        <col width='25%' />
-        <col width='10%' />
-        <col width='10%' />
+        <col width='30%' />
         <col width='15%' />
+        <col width='10%' />
+        <col width='10%' />
       </colgroup>
 
     </table>
@@ -144,8 +144,10 @@
     methods: {
       orderBtnClick() {
         //웹소켓 서버 주문요청
-        if (this.rdmIdxLists.length == 0)
+        if (this.rdmIdxLists.length == 0){
+          //this.btnOrder.aria-pressed
           alert("바스켓 리스트를 생성하세요.");
+        }
 
         //JSON 생성
         var orderArray = new Array();
@@ -168,7 +170,7 @@
 
       createRandOdrList() {
         if (this.randomValue == null) {
-          this.randomValue = 10;
+          this.randomValue = 25;
         }
         for (var j = 0; j < this.randomValue; j++) {
           var idx_tmpValue = Math.floor(Math.random() * 2967); //KOSPI num = 903 //2968개
@@ -192,7 +194,7 @@
 
           var vm = this;
           vm.wsl.send(stockCode);
-          console.log(stockCode)
+          console.log(stockCode);
           this.stockNameMap[stockCode] = stockName;
           this.curPriceMap[stockCode] = 0;
           this.inxMap[stockCode] = i;
@@ -272,7 +274,7 @@
     margin-top: 20px;
     border-radius: 5px;
     text-align: center;
-    margin-left: 70px;
+    margin-left: 80px;
     margin-right: 115px;
     height: 50px;
 
@@ -283,7 +285,7 @@
     float: left;
     background: white;
     border-radius: 5px;
-    margin-left: 70px;
+    margin-left: 90px;
     text-align: center;
     height: 50px;
   }
@@ -309,8 +311,8 @@
     color: #E6050A;
   }
 
-  .basketTitle {
-    color: #00272B;
+  .fontSize {
+    font-size: 14px;
   }
 
   .idxColor {
