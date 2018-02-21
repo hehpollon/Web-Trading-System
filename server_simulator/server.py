@@ -19,6 +19,7 @@ batchMap = {}
 quoteMap = {}
 tighteningMap = {}
 mylist = []
+waitList = []
 
 def isHangul(text):
 	#Check the Python Version
@@ -390,6 +391,8 @@ def generateByBatch():
 	f.close()
 
 async def listenClient(websocket, path):
+	global sendingSocket
+
 	print("connected listen")
 	global tighteningMap
 	global quoteMap
@@ -400,10 +403,10 @@ async def listenClient(websocket, path):
 				print("registered : ",message)
 				if message in tighteningMap:
 					tdata = json.dumps(tighteningMap[message], ensure_ascii=False)
-					await websocket.send(tdata)
+					await sendingSocket.send(tdata)
 				if message in quoteMap:
 					qdata = json.dumps(quoteMap[message], ensure_ascii=False)
-					await websocket.send(qdata)
+					await sendingSocket.send(qdata)
 
 async def sendData(websocket):
 	global tighteningMap
@@ -477,6 +480,9 @@ async def sendData(websocket):
 	f.close()
 
 async def runServer(websocket, path):
+	global sendingSocket
+
+	sendingSocket = websocket
 
 	print("connected")
 

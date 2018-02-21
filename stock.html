@@ -60,8 +60,8 @@
           <tr align="right" class="buy" v-for="n in counter">
             <td class="bnBackground infoText" v-if="n==0"> 체결가 </td>
             <td class="bnBackground infoText" v-if="n==0"> 거래량 </td>
-            <td class="bnBackground contractor" v-bind:class="[sbswitch[n]==2 ? bluecolor : '']" v-if="n>0">{{contractor[n]}}</td>
-            <td class="bnBackground volume" v-bind:class="[sbswitch[n]==2 ? bluecolor : '']" v-if="n>0">{{volume[n]}}</td>
+            <td class="bnBackground contractor" v-bind:class="[sbswitch[n+adder]==2 ? bluecolor : '']" v-if="n>0">{{contractor[n+adder]}}</td>
+            <td class="bnBackground volume" v-bind:class="[sbswitch[n+adder]==2 ? bluecolor : '']" v-if="n>0">{{volume[n+adder]}}</td>
             <td class="bBackground bpr" v-bind:class="[bswitch[n]==1 ? bmatch : '']">{{bpr[n]}}</td>
             <td class="bBackground ">{{bbal[n]}}</td>
             <td class="bBackground">{{bnum[n]}}</td>
@@ -160,7 +160,9 @@ var app = new Vue({
           counter:[],
           rcounter:[],
           maxnum : 5,
-          checked:false
+          checked:false,
+          adder:5,
+          firstStart: true
         },
         watch: {
           checked: function (val, oldVal) {
@@ -168,9 +170,11 @@ var app = new Vue({
               this.maxnum = 10;
               window.resizeTo(350,750);
               this.updateInfos();
+              this.adder = 0;
             }else{
               this.maxnum = 5;
               window.resizeTo(350,480);
+              this.adder = 5;
             }
             this.computeLoop();
           }
@@ -273,6 +277,10 @@ var app = new Vue({
                 }
               }
             });
+            if (this.firstStart){
+              
+              this.firstStart = false;
+            }
           }
         }
       })
