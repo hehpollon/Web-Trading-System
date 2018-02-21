@@ -38,15 +38,17 @@
 
     <div>
       <div class=" progress" v-if="showProgress == true">
-        <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" :aria-valuenow="batchCompleteNum" aria-valuemin="0" aria-valuemax="2968" :style="{ width: progressWidth }">
+        <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" :aria-valuenow="batchCompleteNum" aria-valuemin="0" aria-valuemax="884" :style="{ width: progressWidth }">
           {{ batchCompletePercent }} %
         </div>
       </div>
 
     </div>
     <div class="inputBox shadow" v-if="showInput == true">
-      <input type="text" v-model="stockName" placeholder="stock" required>
-
+      <input type="text" v-model="stockName" placeholder="주식명" list="stocklist" required >
+      <datalist id="stocklist" >
+        <option v-for="n in stockNameList"> {{ n }} </option>
+      </datalist>
       <button class="getStock" v-on:click="getStock()">
         open
       </button>
@@ -68,7 +70,7 @@
     data: {
       name: 'Vue',
       testData: 'log data',
-      stockName: '삼성전자',
+      stockName: '',
       email: '',
       batchCompleteNum: 0,
       batchCompletePercent: '0',
@@ -78,7 +80,8 @@
       ws: '',
       wsl: '',
       basketIdx: 0,
-      basketLists: []
+      basketLists: [],
+      stockNameList : [],
     },
     methods: {
       connectSocket() {
@@ -102,27 +105,35 @@
         }
 
         this.ws.onmessage = function(event) {
+          var totalNum = 884;
           var jdata = JSON.parse(event.data);
           if (jdata["batch"] != undefined) {
 
             var jdataInfo = JSON.parse(jdata["batch"]);
 
+            var KOSPI여부 = jdataInfo["(유가)KOSPI여부"];
+            if (KOSPI여부 == "N"){
+              return;
+            }
+
             var 종목코드 = jdataInfo["종목코드"];
             var 종목한글약명 = jdataInfo["종목한글약명"];
 
+            vm.stockNameList.push(종목한글약명);
+
             vm.testData = 종목코드 + " " + 종목한글약명;
             vm.batchCompleteNum += 1;
-            var percent = parseInt(vm.batchCompleteNum / 2968 * 100)
+            var percent = parseInt(vm.batchCompleteNum / totalNum * 100)
             if (percent > 10) {
-              vm.batchCompletePercent = parseInt(vm.batchCompleteNum / 2968 * 100 / 2) * 2;
+              vm.batchCompletePercent = parseInt(vm.batchCompleteNum / totalNum * 100 / 2) * 2;
             }
-            vm.progressWidth = parseInt(vm.batchCompleteNum / 2968 * 100 / 10) * 10 + "%";
+            vm.progressWidth = parseInt(vm.batchCompleteNum / totalNum * 100 / 10) * 10 + "%";
             localStorage.setItem(종목한글약명, 종목코드);
 
             localStorage.setItem(종목코드, 종목한글약명); //hz orderStock
             localStorage.setItem('idxKSP' + vm.batchCompleteNum, 종목코드); //hz orderStock
 
-            if (vm.batchCompleteNum == 2968) {
+            if (vm.batchCompleteNum == totalNum) {
               vm.showProgress = false;
               vm.showInput = true;
             }
