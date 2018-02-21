@@ -179,8 +179,19 @@
           this.randomValue = 25;
         }
         for (var j = 0; j < this.randomValue; j++) {
-          var idx_tmpValue = Math.floor(Math.random() * 884); //KOSPI num = 903 //2968개
-          var rndOrderQnty = Math.floor((Math.random() * 100) + 1);
+          var idx_tmpValue = Math.floor((Math.random() * 883)+1); //884개
+          var rndOrderQnty = Math.floor((Math.random() * 100)+1);
+
+          //basket내 stockCode 중복방지
+          var tmpRndArray = this.rdmIdxLists.sort();
+          for(var e=0;e<tmpRndArray.length;e++)
+          {
+            if(tmpRndArray[e]==idx_tmpValue){
+              idx_tmpValue += 1;
+            }
+          }
+
+
           this.rdmIdxLists.push(idx_tmpValue);
           this.list.push(localStorage.getItem('idxKSP' + idx_tmpValue));
           //console.log("this.rdmIdxLists(idx) length: " + this.rdmIdxLists.length);
@@ -208,6 +219,8 @@
           this.rndMap[stockCode] = this.rdmIdxLists[i];
           this.orderQntyMap[stockCode] = this.orderQntyLists[i];
           this.tighteningQntyMap[stockCode] = 0;
+          this.curPriceMap[stockCode] = comma(localStorage.getItem('l_' + stockCode) * 1 + "");
+          this.curPriceMap = _.clone(this.curPriceMap);
         }
       },
 
