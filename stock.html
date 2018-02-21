@@ -161,7 +161,8 @@ var app = new Vue({
           rcounter:[],
           maxnum : 5,
           checked:false,
-          adder:5
+          adder:5,
+          firstStart: true
         },
         watch: {
           checked: function (val, oldVal) {
@@ -276,6 +277,10 @@ var app = new Vue({
                 }
               }
             });
+            if (this.firstStart){
+              
+              this.firstStart = false;
+            }
           }
         }
       })
