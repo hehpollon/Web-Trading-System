@@ -210,7 +210,7 @@
           var jsonInfo = JSON.stringify(orderKeyInfo);
           console.log("KEY SEND jsonInfo: " + jsonInfo);
           var vm = this;
-          vm.wsl.send(orderKeyInfo); //서버전송
+          vm.wsl.send(jsonInfo); //서버전송
 
           console.log("stockCode: "+stockCode);
           this.stockNameMap[stockCode] = stockName;
