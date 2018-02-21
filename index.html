@@ -61,55 +61,107 @@
   <br>
   <br>
 </body>
-<script>
-  var app = new Vue({
-    el: '#app',
-    data: {
-      name: 'Vue',
-      testData: 'log data',
-      stockName: '삼성전자',
-      email: '',
-      batchCompleteNum: 0,
-      batchCompletePercent: '0',
-      progressWidth: 'width: 0%',
-      showProgress: false,
-      showInput: false,
-      ws: '',
-      wsl: '',
-      basketIdx: 0,
-      basketLists:[]
-    },
-    methods: {
-      connectSocket() {
-        if (this.email == "") {
-          alert("이메일을 입력해 주세요!");
-          return;
-        }
 
-        this.ws = new WebSocket("ws://127.0.0.1:5678/");
-        this.wsl = new WebSocket("ws://127.0.0.1:6789/");
-        this.batchCompleteNum = 0;
-        this.showProgress = true;
+  <script>
+    var app = new Vue({
+    	  el: '#app',
+    	  data: {
+    	  	name: 'Vue',
+          testData: 'log data',
+          stockName: '삼성전자',
+          email:'',
+          batchCompleteNum : 0,
+          batchCompletePercent: '0',
+          progressWidth: 'width: 0%',
+          showProgress:false,
+          showInput: false,
+          ws:'',
+          wsl:''
+    	  },
+    	  methods: {
+             connectSocket() {
+                 if (this.email == "") {
+                    alert("이메일을 입력해 주세요!");
+                    return;
+                 }
 
-        var vm = this;
-        this.wsl.onopen = function(event) {
-          vm.wsl.send("con");
-        }
+                 this.ws = new WebSocket("ws://127.0.0.1:5678/");
+                 try{
+                   this.wsl = new WebSocket("ws://127.0.0.1:6789/");
+                 }catch(err){
 
-        this.ws.onmessage = function(event) {
-          var jdata = JSON.parse(event.data);
-          if (jdata["batch"] != undefined) {
+                 }
+                 this.batchCompleteNum = 0;
+                 this.showProgress = true;
 
-            var jdataInfo = JSON.parse(jdata["batch"]);
+                 var vm = this;
+                  this.wsl.onopen = function (event) {
+                   vm.wsl.send("con");
+                 }
 
-            var 종목코드 = jdataInfo["종목코드"];
-            var 종목한글약명 = jdataInfo["종목한글약명"];
+                 this.ws.onmessage = function (event) {
+                     var jdata = JSON.parse(event.data);
+                     if (jdata["batch"] != undefined) {
 
-            vm.testData = 종목코드 + " " + 종목한글약명;
-            vm.batchCompleteNum += 1;
-            var percent = parseInt(vm.batchCompleteNum / 2968 * 100)
-            if (percent > 10) {
-              vm.batchCompletePercent = parseInt(vm.batchCompleteNum / 2968 * 100 / 2) * 2;
+                         var jdataInfo =  JSON.parse(jdata["batch"]);
+
+                         var 종목코드 = jdataInfo["종목코드"];
+                         var 종목한글약명 = jdataInfo["종목한글약명"];
+
+                         vm.testData = 종목코드+" "+종목한글약명;
+                         vm.batchCompleteNum += 1;
+                         var percent = parseInt(vm.batchCompleteNum/2968 * 100)
+                         if(percent > 10){
+                          vm.batchCompletePercent = parseInt(vm.batchCompleteNum/2968 * 100 / 2)  * 2;
+                         }
+                         vm.progressWidth = parseInt(vm.batchCompleteNum/2968 * 100 / 10) * 10 +"%";
+                         localStorage.setItem(종목한글약명, 종목코드);
+
+                         if(vm.batchCompleteNum == 2968){
+                           vm.showProgress = false;
+                           vm.showInput = true;
+                         }
+                         //vm.exwin.document.body.innerHTML = 종목코드+" "+종목한글약명;
+
+                         //vm.$ls.set('tdata', 종목코드);
+                         //this.close()
+                     }else if (jdata["quote"] != undefined) {
+
+                        var jdataInfo =  JSON.parse(jdata["quote"]);
+
+                        var 종목코드 = jdataInfo["종목코드"];
+
+                        localStorage.setItem("q_"+종목코드, jdata["quote"]);
+
+                        // if(종목코드=="6CZ16"){
+                        //   this.close()
+                        // }
+                     }else if (jdata["tightening"] != undefined) {
+                        var jdataInfo =  JSON.parse(jdata["tightening"]);
+
+                        var 종목코드 = jdataInfo["종목코드"];
+
+                        localStorage.setItem("t_"+종목코드, jdata["tightening"]);
+                     }
+                 };
+             },
+             disconnectSocket(){
+                this.ws.close();
+                this.wsl.close();
+             },
+             getStock() {
+                var stockNum = localStorage.getItem(this.stockName);
+                if (stockNum === null){
+                  alert("없는 종목입니다.");
+                } else {
+                this.ws.send("{\"key\":\""+stockNum+"\"}");
+                try{
+                  this.wsl.send(localStorage.getItem(this.stockName));
+                }catch(err){
+
+                }
+                this.exwin = window.open("stock.html?name="+this.stockName, "", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=350,height=430,top="+(screen.height-700)+",left="+(screen.width-1540));
+              }
             }
             vm.progressWidth = parseInt(vm.batchCompleteNum / 2968 * 100 / 10) * 10 + "%";
             localStorage.setItem(종목한글약명, 종목코드);

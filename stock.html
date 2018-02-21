@@ -16,19 +16,29 @@
   <body style="height: 90%;" v-cloak>
     <div id="app" style="height: 80%;">
       <div class="stockName stitle">
-        {{ hangulName }}
         {{ stockName }}
+        {{ temp }}
+
+        <div v-bind:class="[beforeDay > 3 ? bluecolor : redcolor]">
+          {{ percent }}%
+        </div>
       </div>
-      <div>
+      <div class="toggle">
+        <input type="checkbox" id="unchecked" class="cbx hidden" v-model="checked"/>
+        <label for="unchecked" class="lbl"></label>
       </div>
-      <table class="table">
+
+      <div class="tlabel">
+        10호가
+      </div>
+      <table class="table" v-cloak>
         <tbody style="height: 80%;">
           <tr>
-            <th class="sell">건수</th>
+            <th class="sell">주문</th>
             <th class="sell">잔량</th>
             <th class="stitle">{{ hours }}:{{ minutes }}:{{ seconds }}</th>
             <th class="buy">잔량</th>
-            <th class="buy">건수</th>
+            <th class="buy">주문</th>
           </tr>
           <tr align="center">
             <td bgcolor="#0000FF" colspan="2">
@@ -39,75 +49,22 @@
               <font color="white">시장가매수</font>
             </td>
           </tr>
-          <tr align="right" class="sell">
-            <td class="sBackground">{{snum5}}</td>
-            <td class="sBackground">{{sbal5}}</td>
-            <td class="sBackground spr">{{spr5}}</td>
+          <tr align="right" class="sell" v-for="n in rcounter">
+            <td class="sBackground">{{snum[n]}}</td>
+            <td class="sBackground">{{sbal[n]}}</td>
+            <td class="sBackground spr" v-bind:class="[sswitch[n]==1 ? smatch : '']">{{spr[n]}}</td>
             <td class="snBackground"></td>
             <td class="snBackground"></td>
           </tr>
-          <tr align="right" class="sell">
-            <td class="sBackground">{{snum4}}</td>
-            <td class="sBackground">{{sbal4}}</td>
-            <td class="sBackground spr">{{spr4}}</td>
-            <td class="snBackground"></td>
-            <td class="snBackground"></td>
-          </tr>
-          <tr align="right" class="sell">
-            <td class="sBackground">{{snum3}}</td>
-            <td class="sBackground">{{sbal3}}</td>
-            <td class="sBackground spr">{{spr3}}</td>
-            <td class="snBackground"></td>
-            <td class="snBackground"></td>
-          </tr>
-          <tr align="right" class="sell">
-            <td class="sBackground">{{snum2}}</td>
-            <td class="sBackground">{{sbal2}}</td>
-            <td class="sBackground spr">{{spr2}}</td>
-            <td class="snBackground"></td>
-            <td class="snBackground"></td>
-          </tr>
-          <tr align="right" class="sell">
-            <td class="sBackground">{{snum1}}</td>
-            <td class="sBackground">{{sbal1}}</td>
-            <td class="sBackground spr">{{spr1}}</td>
-            <td class="snBackground"></td>
-            <td class="snBackground"></td>
-          </tr>
-          <tr align="right" class="buy">
-            <td class="bnBackground contractor" v-bind:class="[sbswitch[0]==2 ? bluecolor : '']">{{ contractor[0] }}</td>
-            <td class="bnBackground volume" v-bind:class="[sbswitch[0]==2 ? bluecolor : '']">{{ volume[0] }}</td>
-            <td class="bBackground bpr">{{bpr1}}</td>
-            <td class="bBackground">{{bbal1}}</td>
-            <td class="bBackground">{{bnum1}}</td>
-          </tr>
-          <tr align="right" class="buy">
-            <td class="bnBackground contractor " v-bind:class="[sbswitch[1]==2 ? bluecolor : '']">{{ contractor[1] }}</td>
-            <td class="bnBackground volume" v-bind:class="[sbswitch[1]==2 ? bluecolor : '']">{{ volume[1] }}</td>
-            <td class="bBackground bpr">{{bpr2}}</td>
-            <td class="bBackground">{{bbal2}}</td>
-            <td class="bBackground">{{bnum2}}</td>
-          </tr>
-          <tr align="right" class="buy">
-            <td class="bnBackground contractor" v-bind:class="[sbswitch[2]==2 ? bluecolor : '']">{{ contractor[2] }}</td>
-            <td class="bnBackground volume" v-bind:class="[sbswitch[2]==2 ? bluecolor : '']">{{ volume[2] }}</td>
-            <td class="bBackground bpr">{{bpr3}}</td>
-            <td class="bBackground">{{bbal3}}</td>
-            <td class="bBackground">{{bnum3}}</td>
-          </tr>
-          <tr align="right" class="buy">
-            <td class="bnBackground contractor" v-bind:class="[sbswitch[3]==2 ? bluecolor : '']">{{ contractor[3] }}</td>
-            <td class="bnBackground volume" v-bind:class="[sbswitch[3]==2 ? bluecolor : '']">{{ volume[3] }}</td>
-            <td class="bBackground bpr">{{bpr4}}</td>
-            <td class="bBackground">{{bbal4}}</td>
-            <td class="bBackground">{{bnum4}}</td>
-          </tr>
-          <tr align="right" class="buy">
-            <td class="bnBackground contractor" v-bind:class="[sbswitch[4]==2 ? bluecolor : '']">{{ contractor[4] }}</td>
-            <td class="bnBackground volume" v-bind:class="[sbswitch[4]==2 ? bluecolor : '']">{{ volume[4] }}</td>
-            <td class="bBackground bpr">{{bpr5}}</td>
-            <td class="bBackground">{{bbal5}}</td>
-            <td class="bBackground">{{bnum5}}</td>
+
+          <tr align="right" class="buy" v-for="n in counter">
+            <td class="bnBackground infoText" v-if="n==0"> 체결가 </td>
+            <td class="bnBackground infoText" v-if="n==0"> 거래량 </td>
+            <td class="bnBackground contractor" v-bind:class="[sbswitch[n]==2 ? bluecolor : '']" v-if="n>0">{{contractor[n]}}</td>
+            <td class="bnBackground volume" v-bind:class="[sbswitch[n]==2 ? bluecolor : '']" v-if="n>0">{{volume[n]}}</td>
+            <td class="bBackground bpr" v-bind:class="[bswitch[n]==1 ? bmatch : '']">{{bpr[n]}}</td>
+            <td class="bBackground ">{{bbal[n]}}</td>
+            <td class="bBackground">{{bnum[n]}}</td>
           </tr>
         </tbody>
       </table>
@@ -115,6 +72,7 @@
   </body>
 
 <script>
+
   var getParam = function(key){
     var _parammap = {};
     document.location.search.replace(/\??(?:([^=]+)=([^&]*)&?)/g, function () {
@@ -178,45 +136,49 @@ var app = new Vue({
           seconds: getZeroPad(new Date().getSeconds()),
           hourtime: '',
           tdata:'0',
-          spr1:'0',
-          sbal1:'0',
-          snum1:'0',
-          spr2:'0',
-          sbal2:'0',
-          snum2:'0',
-          spr3:'0',
-          sbal3:'0',
-          snum3:'0',
-          spr4:'0',
-          sbal4:'0',
-          snum4:'0',
-          spr5:'0',
-          sbal5:'0',
-          snum5:'0',
-          bpr1:'0',
-          bbal1:'0',
-          bnum1:'0',
-          bpr2:'0',
-          bbal2:'0',
-          bnum2:'0',
-          bpr3:'0',
-          bbal3:'0',
-          bnum3:'0',
-          bpr4:'0',
-          bbal4:'0',
-          bnum4:'0',
-          bpr5:'0',
-          bbal5:'0',
-          bnum5:'0',
           curpr:'0',
+          bkey:0,
+          spr:[],
+          sbal:[],
+          snum:[],
+          bpr:[],
+          bbal:[],
+          bnum:[],
           contractor:[],
           volume:[],
           sbswitch:[],  /* 1:매수 2:매도 */
-          bluecolor: 'bluecolor'
+          bluecolor: 'bluecolor',
+          redcolor:'redcolor',
+          bmatch: 'pmatch',
+          smatch: 'pmatch',
+          bswitch:[],
+          sswitch:[],
+          beforeDay:'',
+          percent:'',
+          temp:'',
+          beforeDayPrice:'',
+          counter:[],
+          rcounter:[],
+          maxnum : 5,
+          checked:false
+        },
+        watch: {
+          checked: function (val, oldVal) {
+            if(val){
+              this.maxnum = 10;
+              window.resizeTo(350,750);
+              this.updateInfos();
+            }else{
+              this.maxnum = 5;
+              window.resizeTo(350,480);
+            }
+            this.computeLoop();
+          }
         },
         mounted () {
           setInterval(this.updateDateTime, 100);
-          this.listenStorage()
+          this.listenStorage();
+          this.computeLoop();
         },
         ready: function() {
 
@@ -227,7 +189,15 @@ var app = new Vue({
           }
         },
         methods: {
-           beforePageDestroyed: function (event) {
+          computeLoop () {
+            this.counter = [];
+            this.rcounter = [];
+            for(var i = 0 ; i < this.maxnum; i++) {
+              this.counter.push(i);
+              this.rcounter.push(this.maxnum-1-i);
+           } 
+          },
+          beforePageDestroyed: function (event) {
               console.log('beforePageDestroyed');
               alert("beforePageDestroyed");
           },
@@ -239,70 +209,67 @@ var app = new Vue({
             this.hourtime = getHourTime(this.hours)
             this.hours = this.hours % 12 || 12
           },
+          updateInfos() {
+              var stockNum = localStorage.getItem(this.stockName);
+              var curval = localStorage.getItem("q_"+stockNum);
+              localStorage.setItem("q_"+stockNum,curval + ";");
+            
+          },
           listenStorage () {
             var vm = this;
             var stockNum = localStorage.getItem(vm.stockName)
             window.addEventListener('storage', function(e) {
               if(e.key == "q_"+stockNum) {
                 var jdata = JSON.parse(e.newValue);
-                vm.spr1 = jdata["매도호가1"]*1+"";
-                vm.sbal1 = jdata["매도호가_잔량1"]*1+"";
-                vm.snum1 = jdata["매도1단계우선호가건수"];
-                vm.spr2 = jdata["매도호가2"]*1+"";
-                vm.sbal2 = jdata["매도호가_잔량2"]*1+"";
-                vm.snum2 = jdata["매도2단계우선호가건수"];
-                vm.spr3 = jdata["매도호가3"]*1+"";
-                vm.sbal3 = jdata["매도호가_잔량3"]*1+"";
-                vm.snum3 = jdata["매도3단계우선호가건수"];
-                vm.spr4 = jdata["매도호가4"]*1+"";
-                vm.sbal4 = jdata["매도호가_잔량4"]*1+"";
-                vm.snum4 = jdata["매도4단계우선호가건수"];
-                vm.spr5 = jdata["매도호가5"]*1+"";
-                vm.sbal5 = jdata["매도호가_잔량5"]*1+"";
-                vm.snum5 = jdata["매도5단계우선호가건수"];
-
-                vm.bpr1 = jdata["매수호가1"]*1+"";
-                vm.bbal1 = jdata["매수호가_잔량1"]*1+"";
-                vm.bnum1 = jdata["매수1단계우선호가건수"];
-                vm.bpr2 = jdata["매수호가2"]*1+"";
-                vm.bbal2 = jdata["매수호가_잔량2"]*1+"";
-                vm.bnum2 = jdata["매수2단계우선호가건수"];
-                vm.bpr3 = jdata["매수호가3"]*1+"";
-                vm.bbal3 = jdata["매수호가_잔량3"]*1+"";
-                vm.bnum3 = jdata["매수3단계우선호가건수"];
-                vm.bpr4 = jdata["매수호가4"]*1+"";
-                vm.bbal4 = jdata["매수호가_잔량4"]*1+"";
-                vm.bnum4 = jdata["매수4단계우선호가건수"];
-                vm.bpr5 = jdata["매수호가5"]*1+"";
-                vm.bbal5 = jdata["매수호가_잔량5"]*1+"";
-                vm.bnum5 = jdata["매수5단계우선호가건수"];
-
-                vm.spr1 = comma(vm.spr1)
-                vm.spr2 = comma(vm.spr2)
-                vm.spr3 = comma(vm.spr3)
-                vm.spr4 = comma(vm.spr4)
-                vm.spr5 = comma(vm.spr5)
-
-                vm.bpr1 = comma(vm.bpr1)
-                vm.bpr2 = comma(vm.bpr2)
-                vm.bpr3 = comma(vm.bpr3)
-                vm.bpr4 = comma(vm.bpr4)
-                vm.bpr5 = comma(vm.bpr5)
 
 
+                vm.spr = [];
+                vm.sbal = [];
+                vm.snum = [];
+                vm.bpr = [];
+                vm.bbal = [];
+                vm.bnum = [];
+
+                for(i = 1; i <=10; i++) {
+                  vm.spr.push(comma(jdata["매도호가"+i]*1+""));
+                  vm.sbal.push(jdata["매도호가_잔량"+i]*1+"");
+                  vm.snum.push(jdata["매도"+i+"단계우선호가건수"]);
+                  vm.bpr.push(comma(jdata["매수호가"+i]*1+""));
+                  vm.bbal.push(jdata["매수호가_잔량"+i]*1+"");
+                  vm.bnum.push(jdata["매수"+i+"단계우선호가건수"]);
+                }
               } else if(e.key == "t_"+stockNum) {
+
+                vm.bswitch = [];
+                vm.sswitch = [];
+
                 var jdata = JSON.parse(e.newValue);
-                vm.contractor.push(comma(jdata["체결가격"]*1+""))
-                vm.volume.push(comma(jdata["체결수량"]*1+""))
-                vm.sbswitch.push(jdata["최종매도매수구분코드"])
-                if(vm.contractor.length > 5) {
-                  vm.contractor.shift()
+                var price = comma(jdata["체결가격"]*1+"");
+
+                vm.beforeDay = parseInt(jdata["전일대비(기준가대비)구분"])
+                vm.beforeDayPrice = parseInt(jdata["체결가격"]) + 
+                  (parseInt(jdata["전일대비"])*(jdata["전일대비(기준가대비)구분"]>3 ? -1 : 1))
+                vm.percent = (parseInt(jdata["전일대비"])/vm.beforeDayPrice*100).toFixed(2)
+
+                
+                vm.percent = vm.beforeDay > 3 ? "-"+vm.percent : "+"+vm.percent
+
+                vm.contractor.push(price)
+                vm.volume.push(comma(jdata["체결수량"]*1+""));
+                vm.sbswitch.push(jdata["최종매도매수구분코드"]);
+
+                if(vm.contractor.length > 10) {
+                  vm.contractor.shift();
+                  vm.volume.shift();
+                  vm.sbswitch.shift();
                 }
-                if(vm.volume.length > 5) {
-                  vm.volume.shift()
+                
+                if(vm.maxnum == 5) {
                 }
-                if(vm.sbswitch.length > 5) {
-                  vm.sbswitch.shift()
+
+                for(i = 0; i <10; i++) {
+                  price == vm.bpr[i] ? vm.bswitch.push(1) : vm.bswitch.push(0);
+                  price == vm.spr[i] ? vm.sswitch.push(1) : vm.sswitch.push(0);
                 }
               }
             });
@@ -319,8 +286,20 @@ var app = new Vue({
     td {
       border: 1px solid #ffffff;
     }
+    .tlabel{
+      float: right;
+      font-size: 12px;
+    }
+    .infoText{
+      color: black;
+      font-size:9px;
+      text-align:center;
+    }
     .bluecolor {
       color: blue;
+    }
+    .redcolor{
+      color: red;
     }
     .volume{
       font-size:10px;
@@ -328,9 +307,11 @@ var app = new Vue({
     }
     .contractor{
       font-size:10px;
+      text-align:center;
     }
     .stockName {
       padding: 5px;
+      float: left;
     }
     body {
      background-color: #F6F6F8;
@@ -371,7 +352,61 @@ var app = new Vue({
    }
    .stitle {
      color: #333333;
+     font-weight: bold;
    }
+   .pmatch {
+    border: 1px solid #565656;
+   }
+   .toggle{
+    float: right;
+    margin-top: 4px;
+    margin-left: 2px;
+   }
+
+
+
+   .lbl {
+  position: relative;
+  display: block;
+  height: 10px;
+  width: 22px;
+  background: #898989;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.lbl:after {
+  position: absolute;
+  left: -1px;
+  top: -2px;
+  display: block;
+  width: 13px;
+  height: 13px;
+  border-radius: 50px;
+  background: #fff;
+  box-shadow: 0px 3px 3px rgba(0,0,0,0.05);
+  content: '';
+  transition: all 0.3s ease;
+}
+
+.lbl:active:after { transform: scale(1.15, 0.85); }
+
+.cbx:checked ~ label { background: #6fbeb5; }
+
+.cbx:checked ~ label:after {
+  left: 10px;
+  background: #179588;
+}
+
+.cbx:disabled ~ label {
+  background: #d5d5d5;
+  pointer-events: none;
+}
+
+.cbx:disabled ~ label:after { background: #bcbdbc; }
+
+.hidden { display: none; }
   </style>
 
 </html>
