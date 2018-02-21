@@ -136,15 +136,8 @@
       tighteningQntyMap: {},
       wsl: ''
     },
-    created(){
-      //this.wsl = new WebSocket("ws://127.0.0.1:6789/");
-    },
-    beforeMount(){
-      //this.createRandOdrList();
-    },
     mounted() {
       this.wsl = new WebSocket("ws://127.0.0.1:6789/");
-      //this.createRandOdrList();
       this.listenStorageORD();
     },
     methods: {
@@ -169,7 +162,7 @@
         orderBasketInfo.orderLists = orderArray;
 
         var jsonInfo = JSON.stringify(orderBasketInfo);
-        console.log("jsonInfo: " + jsonInfo);
+        console.log("ORDER SEND jsonInfo: " + jsonInfo);
         var vm = this;
         vm.wsl.send(orderBasketInfo); //서버전송
       },
@@ -190,8 +183,6 @@
               idx_tmpValue += 1;
             }
           }
-
-
           this.rdmIdxLists.push(idx_tmpValue);
           this.list.push(localStorage.getItem('idxKSP' + idx_tmpValue));
           //console.log("this.rdmIdxLists(idx) length: " + this.rdmIdxLists.length);
@@ -211,6 +202,16 @@
 
           var vm = this;
           vm.wsl.send(stockCode);
+
+
+          var orderKeyInfo = new Object();
+          orderKeyInfo.key = stockCode;
+
+          var jsonInfo = JSON.stringify(orderKeyInfo);
+          console.log("KEY SEND jsonInfo: " + jsonInfo);
+          var vm = this;
+          vm.wsl.send(orderKeyInfo); //서버전송
+
           console.log("stockCode: "+stockCode);
           this.stockNameMap[stockCode] = stockName;
           this.curPriceMap[stockCode] = 0;
