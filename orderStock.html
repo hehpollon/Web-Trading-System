@@ -156,8 +156,8 @@
       orderComplete: false
     },
     mounted() {
-      this.ws = new WebSocket("ws://127.0.0.1:5678/");
-      this.wsl = new WebSocket("ws://127.0.0.1:6789/");
+      this.ws = new WebSocket("ws://127.0.0.1:8080/web_server/websocket");
+      //this.wsl = new WebSocket("ws://127.0.0.1:6789/");
       this.listenStorageORD();
     },
     methods: {
@@ -183,7 +183,7 @@
           var jsonInfo = JSON.stringify(orderBasketInfo);
           console.log("ORDER SEND jsonInfo: " + jsonInfo);
           var vm = this;
-          //vm.wsl.send(jsonInfo); //서버전송 before ver.
+          //vm.wsl.send(jsonInfo); //주문 서버전송 before ver.
           vm.ws.send(jsonInfo);//
         }
       },
@@ -221,16 +221,18 @@
 
           var orderKeyInfo = new Object();
           orderKeyInfo.orderk = stockCode;
+          //orderKeyInfo.key = stockCode;
 
           var jsonInfo = JSON.stringify(orderKeyInfo);
           console.log("KEY SEND jsonInfo: " + jsonInfo);
           var vm = this;
           //vm.wsl.send(jsonInfo); //서버전송 before ver.
           vm.ws.send(jsonInfo);
+          console.log("order ws 현재가요청:"+jsonInfo);    
 
           try {
-            vm.wsl.send(stockCode);
-            console.log("order 현재가요청:"+stockCode);
+            //vm.wsl.send(stockCode);
+            //console.log("order wsl 현재가요청:"+stockCode);
           } catch (err) {
           }
           //console.log("stockCode: " + stockCode);
