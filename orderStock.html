@@ -164,7 +164,7 @@
         var jsonInfo = JSON.stringify(orderBasketInfo);
         console.log("ORDER SEND jsonInfo: " + jsonInfo);
         var vm = this;
-        vm.wsl.send(orderBasketInfo); //서버전송
+        vm.wsl.send(jsonInfo); //서버전송
       },
 
       createRandOdrList() {
@@ -199,10 +199,6 @@
           var row = table_id.insertRow(rowlen - 1);
           var stockCode = this.list[i];
           var stockName = localStorage.getItem(stockCode);
-
-          var vm = this;
-          vm.wsl.send(stockCode);
-
 
           var orderKeyInfo = new Object();
           orderKeyInfo.orderk = stockCode;
