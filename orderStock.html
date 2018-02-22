@@ -156,7 +156,7 @@
       orderComplete: false
     },
     mounted() {
-      this.ws = new WebSocket("ws://127.0.0.1:8080/web_server/websocket");
+      this.ws = new WebSocket("ws://192.168.100.146:8080/web_server/websocket");
       //this.wsl = new WebSocket("ws://127.0.0.1:6789/");
       this.listenStorageORD();
     },
@@ -211,7 +211,7 @@
         //console.log("this.rdmIdxLists : " + this.rdmIdxLists);
         this.addDynamicRow(tableDynid);
       },
-
+ 
       addDynamicRow(table_id) {
         var rowlen = table_id.rows.length;
         for (var i = 0; i < this.rdmIdxLists.length; i++) {
