@@ -90,10 +90,10 @@
           return;
         }
 
-        this.ws = new WebSocket("ws://127.0.0.1:5678/");
+        this.ws = new WebSocket("ws://127.0.0.1:8080/web_server/websocket");
         try {
           this.wsl = new WebSocket("ws://127.0.0.1:6789/");
-        } catch (err) {
+          } catch (err) {
 
         }
         this.batchCompleteNum = 0;
@@ -155,6 +155,7 @@
             //   this.close()
             // }
           } else if (jdata["tightening"] != undefined) {
+              
             var jdataInfo = JSON.parse(jdata["tightening"]);
             var 종목코드 = jdataInfo["종목코드"];
             localStorage.setItem("t_" + 종목코드, jdata["tightening"]);
@@ -178,6 +179,7 @@
           this.ws.send("{\"key\":\"" + stockNum + "\"}");
           try {
             this.wsl.send(localStorage.getItem(this.stockName));
+              
           } catch (err) {
 
           }
