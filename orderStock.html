@@ -256,7 +256,7 @@
             if (e.key == "t_" + num) {
               var jdata = JSON.parse(e.newValue);
               vm.curPriceMap[num] = comma(jdata["체결가격"] * 1 + "");
-              console.log("vm.curPriceMap[num]: " + vm.curPriceMap[num]);
+              console.log("종목코드: "+num+" / 현재가: " + vm.curPriceMap[num]);
               vm.curPriceMap = _.clone(vm.curPriceMap);
             }
           }
