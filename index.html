@@ -99,9 +99,10 @@
 
           }
         }else{
-          this.ws = new WebSocket("ws://192.168.100.146:8080/web_server/websocket");
+          this.ws = new WebSocket("ws://127.0.0.1:5678/"); //test
+          //this.ws = new WebSocket("ws://192.168.100.146:8080/web_server/websocket");
         }
-        
+
         this.batchCompleteNum = 0;
         this.showProgress = true;
 
@@ -128,7 +129,7 @@
 
             var 종목코드 = jdataInfo["종목코드"];
             var 종목한글약명 = jdataInfo["종목한글약명"];
-            
+
             localStorage.setItem("l_" + 종목코드, jdataInfo["전일종가"]);
 
             vm.stockNameList.push(종목한글약명);
@@ -165,7 +166,7 @@
             //   this.close()
             // }
           } else if (jdata["tightening"] != undefined) {
-              
+
             var jdataInfo = JSON.parse(jdata["tightening"]);
             var 종목코드 = jdataInfo["종목코드"];
             localStorage.setItem("t_" + 종목코드, jdata["tightening"]);
@@ -192,7 +193,7 @@
           if(this.debug) {
             try {
               this.wsl.send(localStorage.getItem(this.stockName));
-                
+
             } catch (err) {
 
             }

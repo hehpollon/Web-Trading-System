@@ -25,6 +25,7 @@
     <div class="orderBox">
       <div class="basketName">
         {{ basketName }}
+        {{ blinkMap }}
       </div>
       <div class="inputBox shadow">
         <input type="text" v-model="randomValue" placeholder="Random 25" class="form-control" required/>
@@ -72,14 +73,14 @@
         <td align='center' class="fontSize"> 종목코드 </td>
         <td align='center' class="fontSize"> 종목명 </td>
         <td align='center' class="fontSize"> 현재가 </td>
-        <td align='center' class="blink" class="fontSize"> 주문수량 </td>
+        <td align='center' class="fontSize"> 주문수량 </td>
         <td align='center' class="fontSize"> 체결수량 </td>
       </tr>
       <tr id='row1' class="basketContents" v-for="mlist in list">
         <td align='center' class="idxColor fontSize"> {{inxMap[mlist]+1}} </td>
         <td align='center' class="fontSize"> {{codeMap[mlist]}} </td>
         <td align='center' class="curPrice fontSize"> {{stockNameMap[mlist]}} </td>
-        <td align='center' class="curPrice fontSize"> {{curPriceMap[mlist]}} </td>
+        <td align='center' v-bind:class="[blinkMap[mlist]==1 ? blink : curPrice]" class="curPrice"> {{curPriceMap[mlist]}} </td>
         <td align='center' class="buy fontSize"> {{orderQntyMap[mlist]}} </td>
         <td align='center' class="idxColor fontSize"> {{tighteningQntyMap[mlist]}} </td>
       </tr>
@@ -138,10 +139,14 @@
     el: '#app',
     data: {
       name: 'VueApp',
+      randomValue: null,
       basketName: getParam("basketNameParam"),
       list: [],
       rdmIdxLists: [],
       orderQntyLists: [],
+      blinkMap:{},
+      blink:'blink',
+      curPrice:'curPrice',
       stockNameMap: {},
       inxMap: {},
       rndMap: {},
@@ -232,6 +237,15 @@
           this.tighteningQntyMap[stockCode] = 0;
           this.curPriceMap[stockCode] = comma(localStorage.getItem('l_' + stockCode) * 1 + "");
           this.curPriceMap = _.clone(this.curPriceMap);
+          this.blinkMap[stockCode]=0;
+
+          if(i==2){
+            this.blinkMap[stockCode] = 1;
+            console.log(i+" / blinkMap["+stockCode+"]: "+this.blinkMap[stockCode]);
+            this.blinkMap = _.clone(this.blinkMap);
+            //this.blinkMap[stockCode] = 0;
+            //console.log(i+" / blinkMap["+stockCode+"]: "+this.blinkMap[stockCode]);
+          }
         }
       },
 
@@ -243,8 +257,13 @@
             if (e.key == "t_" + num) {
               var jdata = JSON.parse(e.newValue);
               vm.curPriceMap[num] = comma(jdata["체결가격"] * 1 + "");
-              //console.log("종목코드: "+num+" / 현재가: " + vm.curPriceMap[num]);
+              console.log("종목코드: "+num+" / 현재가: " + vm.curPriceMap[num]);
               vm.curPriceMap = _.clone(vm.curPriceMap);
+
+              vm.blinkMap[num] = 1;
+              vm.blinkMap = _.clone(vm.blinkMap);
+              vm.blinkMap[num] = 0;
+
             }
           }
           if (e.key == "o_" + vm.basketName) {
@@ -272,7 +291,8 @@
   .blink {
     color: rgb (0, 137, 226);
     font-size: 14px;
-    animation: blink 1s infinite;
+    font-weight: bold;
+    animation: blink 0.5s 2;
   }
 
   @keyframes blink {
@@ -362,6 +382,7 @@
 
   .curPrice {
     color: #0D46C8;
+    font-size: 14px;
   }
 
   .buy {
@@ -370,6 +391,7 @@
 
   .fontSize {
     font-size: 14px;
+    font-weight: normal;
   }
 
   .idxColor {
