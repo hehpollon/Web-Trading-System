@@ -15,14 +15,16 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
-  <title>STS</title>
+  <title>wEMS</title>
 </head>
 
 <body>
-  <div class="logo">
-    <img src="src/assets/favicon.ico" width="40px" alt="Vue.js">
-  </div>
+  
   <div id="app">
+  <div :class="logo">
+    <img src="src/assets/favicon.ico" v-bind:width="logoWidth" alt="Vue.js">
+    wEMS
+  </div>
     <div class="container login" v-if="showInput == false">
       <input type="email" class="form-control email" v-model="email" placeholder="ID"></input>
       <input type="password" class="form-control pw" placeholder="password"></input>
@@ -44,20 +46,24 @@
       </div>
 
     </div>
-    <div class="inputBox shadow" v-if="showInput == true">
-      <input type="text" v-model="stockName" placeholder="주식명" list="stocklist" required >
-      <datalist id="stocklist" >
-        <option v-for="n in stockNameList"> {{ n }} </option>
-      </datalist>
-      <button class="getStock" v-on:click="getStock()">
-        open
-      </button>
-    </div>
-    <h1>  </h1>
-    <div v-if="showInput == true">
-      <button class="btn btn-secondary" v-on:click="orderStock()">
-        Order
-      </button>
+    <div class="container">
+
+      
+      <div class="inputBox shadow" v-if="showInput == true">
+        <input type="text" v-model="stockName" placeholder="주식명" list="stocklist" required >
+        <datalist id="stocklist" >
+          <option v-for="n in stockNameList"> {{ n }} </option>
+        </datalist>
+        <button class="getStock btn btn-info" v-on:click="getStock()">
+           시세
+        </button>
+      </div>
+      <h1>  </h1>
+      <div v-if="showInput == true">
+        <button class="btn btn-secondary" v-on:click="orderStock()">
+          wEMS 트레이딩
+        </button>
+      </div>
     </div>
   </div>
   <br>
@@ -79,12 +85,20 @@
       showInput: false,
       ws: '',
       wsl: '',
+      logo: 'logo',
       basketIdx: 0,
       basketLists: [],
       stockNameList : [],
-      debug: false
+      logoWidth: "120px",
+      debug: true
     },
     methods: {
+      completeBatch() {
+        this.showProgress = false;
+        this.showInput = true;
+        this.logoWidth = "60px"
+        this.logo = "logoComplete"
+      },
       connectSocket() {
         if (this.email == "") {
           alert("이메일을 입력해 주세요!");
@@ -115,6 +129,7 @@
           var totalNum = 883;
           try{
           var jdata = JSON.parse(event.data);
+
           }catch(err){
             return
           }
@@ -147,8 +162,7 @@
             localStorage.setItem('idxKSP' + vm.batchCompleteNum, 종목코드); //hz orderStock
 
             if (vm.batchCompleteNum == totalNum) {
-              vm.showProgress = false;
-              vm.showInput = true;
+              vm.completeBatch();
             }
             //vm.exwin.document.body.innerHTML = 종목코드+" "+종목한글약명;
 
@@ -215,6 +229,13 @@
 <style>
   .logo {
     margin: 20px;
+    font-size: 28px;
+    font-weight: bold;
+  }
+  .logoComplete {
+    margin: 20px;
+    font-size: 18px;
+    font-weight: bold;
   }
 
   .loginBtn {
@@ -255,15 +276,16 @@
     height: 35px;
     padding: 0;
   }
-
+  body {
+  }
   .inputBox {
     margin-top: 20px;
     background: white;
     border-radius: 5px;
     text-align: center;
+    height: 50px;
     margin-left: 30%;
     margin-right: 30%;
-    height: 50px;
   }
 
   .inputBox input {
@@ -280,12 +302,11 @@
   }
 
   .getStock {
-    background: white;
-    border-radius: 4px;
     width: 60px;
     margin: 10px;
     height: 32px;
     align-items: flex-end;
+    font-size: 0.8rem;
   }
 
   .addBtn {
@@ -300,7 +321,6 @@
 
   input {
     border-style: groove;
-    width: 200px;
   }
 
   button {

@@ -397,7 +397,7 @@ async def listenClient(websocket, path):
 	global tighteningMap
 	global quoteMap
 	async for message in websocket:
-		if len(message) > 5:
+		if len(message) > 5 and len(message) < 100:
 			if message not in mylist:
 				mylist.append(message)
 				print("registered : ",message)
@@ -413,6 +413,25 @@ async def listenClient(websocket, path):
 					tempt["tightening"] = tighteningMap[message]
 					sdata = json.dumps(tempt, ensure_ascii=False)
 					await sendingSocket.send(sdata)
+
+		if len(message) > 100:
+			obj = json.loads(message)
+			for message in obj["orderk"]:
+				if message not in mylist:
+					mylist.append(message)
+					print("registered : ",message)
+					tempq = {}
+					tempt = {}
+
+					if message in quoteMap:
+						tempq["quote"] = quoteMap[message]
+						sdata = json.dumps(tempq, ensure_ascii=False)
+						await sendingSocket.send(sdata)
+
+					if message in tighteningMap:
+						tempt["tightening"] = tighteningMap[message]
+						sdata = json.dumps(tempt, ensure_ascii=False)
+						await sendingSocket.send(sdata)
 
 async def sendData(websocket):
 	global tighteningMap
@@ -481,7 +500,7 @@ async def sendData(websocket):
 				if isSimultaneousCall:
 					await asyncio.sleep(0.0001)
 				else:
-					await asyncio.sleep(0.01)
+					await asyncio.sleep(0.1)
 
 	f.close()
 
