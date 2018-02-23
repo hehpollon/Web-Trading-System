@@ -396,8 +396,6 @@ async def listenClient(websocket, path):
 	print("connected listen")
 	global tighteningMap
 	global quoteMap
-	mylist = []
-	mylist.append("KR7005930003")
 	async for message in websocket:
 		if len(message) > 5 and len(message) < 100:
 			if message not in mylist:
