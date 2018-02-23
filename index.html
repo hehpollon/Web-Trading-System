@@ -59,8 +59,8 @@
         </button>
       </div>
       <h1>  </h1>
-      <div v-if="showInput == true">
-        <button class="btn btn-secondary" v-on:click="orderStock()">
+      <div class="tradeBasket" v-if="showInput == true">
+        <button class="btn btn-secondary tradeBtn" v-on:click="orderStock()">
           wEMS 트레이딩
         </button>
       </div>
@@ -226,6 +226,15 @@
   });
 </script>
 <style>
+  body {
+    min-width: 770px;
+  }
+  .tradeBtn {
+    width: 200px;
+  }
+  .tradeBasket {
+    margin-top: 30px;
+  }
   .logo {
     margin: 20px;
     font-size: 28px;
@@ -278,6 +287,7 @@
   body {
   }
   .inputBox {
+    min-width: 275px;
     margin-top: 20px;
     background: white;
     border-radius: 5px;

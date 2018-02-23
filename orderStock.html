@@ -77,8 +77,8 @@
       </tr>
       <tr id='row1' class="basketContents" v-for="mlist in list">
         <td align='center' class="idxColor fontSize"> {{inxMap[mlist]+1}} </td>
-        <td align='center' class="fontSize"> {{codeMap[mlist]}} </td>
-        <td align='center' class="curPrice fontSize"> {{stockNameMap[mlist]}} </td>
+        <td align='center' class="fontSize">   {{codeMap[mlist].slice(3,9)}} </td>
+        <td align='center' class="curPrice fontSize stockNameLink" v-on:click="getStock(stockNameMap[mlist])"> {{stockNameMap[mlist]}} </td>
         <td align='center' v-bind:class="[blinkMap[mlist]==1 ? blink : blinkEnd]" class="curPrice"> {{curPriceMap[mlist]}} </td>
         <td align='center' class="buy fontSize"> {{orderQntyMap[mlist]}} </td>
         <td align='center' v-bind:class="[tght_blinkMap[mlist]==1 ? blink : blinkEnd]" class="idxColor fontSize"> {{tighteningQntyMap[mlist]}} </td>
@@ -191,6 +191,24 @@
           this.ws.send(jsonInfo);
         }
       },
+      getStock(stockName) {
+        var stockNum = localStorage.getItem(stockName);
+        if (stockNum === null) {
+          alert("없는 종목입니다.");
+        } else {
+          this.ws.send("{\"key\":\"" + stockNum + "\"}");
+          if(this.debug) {
+            try {
+              this.wsl.send(localStorage.getItem(stockName));
+
+            } catch (err) {
+
+            }
+          }
+          this.exwin = window.open("stock.html?name=" + stockName, "", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=350,height=430,top=" + (screen.height - 700) + ",left=" + (screen.width -
+            1540));
+        }
+      },
 
       createRandOdrList() {
         //OK버튼 클릭
@@ -256,7 +274,7 @@
                 return;
               }
               vm.curPriceMap[num] = comma(jdata["체결가격"] * 1 + "");
-              console.log("종목코드: "+num+" / 현재가: " + vm.curPriceMap[num]);
+              //console.log("종목코드: "+num+" / 현재가: " + vm.curPriceMap[num]);
               vm.curPriceMap = _.clone(vm.curPriceMap);
 
               for(mlist in vm.list) {
@@ -294,6 +312,9 @@
   th,
   td {
     border: 1px solid #ffffff;
+  }
+  .stockNameLink:hover {
+    cursor: pointer;
   }
 
   .blink {

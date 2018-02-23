@@ -498,9 +498,9 @@ async def sendData(websocket):
 				sdata = json.dumps(temp, ensure_ascii=False)
 				await websocket.send(sdata)
 				if isSimultaneousCall:
-					await asyncio.sleep(0.0001)
+					await asyncio.sleep(0.000001)
 				else:
-					await asyncio.sleep(0.001)
+					await asyncio.sleep(0.01)
 
 	f.close()
 
