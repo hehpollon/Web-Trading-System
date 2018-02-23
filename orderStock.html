@@ -153,11 +153,14 @@
       tighteningQntyMap: {},
       ws: socket,
       wsl: '',
-      orderComplete: false
+      orderComplete: false,
+      debug: true
     },
     mounted() {
       //this.ws = new WebSocket("ws://192.168.100.146:8080/web_server/websocket");
-      //this.wsl = new WebSocket("ws://127.0.0.1:6789/");
+      if(this.debug) {
+        this.ws = new WebSocket("ws://127.0.0.1:6789/");
+      }
       this.listenStorageORD();
     },
     methods: {
@@ -210,6 +213,14 @@
         }
         //console.log("this.rdmIdxLists : " + this.rdmIdxLists);
         this.addDynamicRow(tableDynid);
+
+        //서버에 현재가요청
+        var orderKeyInfo = new Object();
+        orderKeyInfo.basketName = this.basketName;
+        orderKeyInfo.orderk = this.list;
+        var jsonInfo = JSON.stringify(orderKeyInfo);
+        //console.log("orderK SEND jsonInfo: " + jsonInfo);
+        this.ws.send(jsonInfo);
       },
  
       addDynamicRow(table_id) {
@@ -219,23 +230,6 @@
           var stockCode = this.list[i];
           var stockName = localStorage.getItem(stockCode);
 
-          var orderKeyInfo = new Object();
-          orderKeyInfo.orderk = stockCode;
-          //orderKeyInfo.key = stockCode;
-
-          var jsonInfo = JSON.stringify(orderKeyInfo);
-          //console.log("KEY SEND jsonInfo: " + jsonInfo);
-          var vm = this;
-          //vm.wsl.send(jsonInfo); //서버전송 before ver.
-          vm.ws.send(jsonInfo);
-          //console.log("order ws 현재가요청:"+jsonInfo);    
-
-          try {
-            //vm.wsl.send(stockCode);
-            //console.log("order wsl 현재가요청:"+stockCode);
-          } catch (err) {
-          }
-          //console.log("stockCode: " + stockCode);
           this.stockNameMap[stockCode] = stockName;
           this.curPriceMap[stockCode] = 0;
           this.inxMap[stockCode] = i;
@@ -256,7 +250,7 @@
             if (e.key == "t_" + num) {
               var jdata = JSON.parse(e.newValue);
               vm.curPriceMap[num] = comma(jdata["체결가격"] * 1 + "");
-              //console.log("종목코드: "+num+" / 현재가: " + vm.curPriceMap[num]);
+              console.log("종목코드: "+num+" / 현재가: " + vm.curPriceMap[num]);
               vm.curPriceMap = _.clone(vm.curPriceMap);
             }
           }

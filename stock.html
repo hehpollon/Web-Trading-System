@@ -144,9 +144,9 @@ var app = new Vue({
           bpr:[],
           bbal:[],
           bnum:[],
-          contractor:[],
-          volume:[],
-          sbswitch:[],  /* 1:매수 2:매도 */
+          contractor:['','','','','',''],
+          volume:['','','','','',''],
+          sbswitch:['','','','','',''],  /* 1:매수 2:매도 */
           bluecolor: 'bluecolor',
           redcolor:'redcolor',
           bmatch: 'pmatch',
@@ -170,6 +170,17 @@ var app = new Vue({
               this.maxnum = 10;
               window.resizeTo(350,750);
               this.adder = 0;
+              for (i in [0,1,2,3,4,5]) {
+                if(this.contractor[0] == ''){
+                  this.contractor.shift()
+                }
+                if(this.volume[0] == ''){
+                  this.volume.shift()
+                }
+                if(this.sbswitch[0] == ''){
+                  this.sbswitch.shift()
+                }
+              }
             }else{
               this.maxnum = 5;
               window.resizeTo(350,480);
