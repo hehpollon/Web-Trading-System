@@ -401,12 +401,18 @@ async def listenClient(websocket, path):
 			if message not in mylist:
 				mylist.append(message)
 				print("registered : ",message)
-				if message in tighteningMap:
-					tdata = json.dumps(tighteningMap[message], ensure_ascii=False)
-					await sendingSocket.send(tdata)
+				tempq = {}
+				tempt = {}
+
 				if message in quoteMap:
-					qdata = json.dumps(quoteMap[message], ensure_ascii=False)
-					await sendingSocket.send(qdata)
+					tempq["quote"] = quoteMap[message]
+					sdata = json.dumps(tempq, ensure_ascii=False)
+					await sendingSocket.send(sdata)
+
+				if message in tighteningMap:
+					tempt["tightening"] = tighteningMap[message]
+					sdata = json.dumps(tempt, ensure_ascii=False)
+					await sendingSocket.send(sdata)
 
 async def sendData(websocket):
 	global tighteningMap
@@ -475,7 +481,7 @@ async def sendData(websocket):
 				if isSimultaneousCall:
 					await asyncio.sleep(0.0001)
 				else:
-					await asyncio.sleep(0.1)
+					await asyncio.sleep(0.01)
 
 	f.close()
 

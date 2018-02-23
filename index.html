@@ -82,6 +82,7 @@
       basketIdx: 0,
       basketLists: [],
       stockNameList : [],
+      debug: false
     },
     methods: {
       connectSocket() {
@@ -90,7 +91,11 @@
           return;
         }
 
-        this.ws = new WebSocket("ws://192.168.100.146:8080/web_server/websocket");
+        if(this.debug) {
+          this.ws = new WebSocket("ws://127.0.0.1:5678/");
+        }else{
+          this.ws = new WebSocket("ws://192.168.100.146:8080/web_server/websocket");
+        }
         try {
           this.wsl = new WebSocket("ws://127.0.0.1:6789/");
           } catch (err) {
@@ -106,7 +111,11 @@
 
         this.ws.onmessage = function(event) {
           var totalNum = 883;
+          try{
           var jdata = JSON.parse(event.data);
+          }catch(err){
+            return
+          }
           if (jdata["batch"] != undefined) {
 
             var jdataInfo = JSON.parse(jdata["batch"]);
