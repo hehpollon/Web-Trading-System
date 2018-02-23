@@ -25,7 +25,6 @@
     <div class="orderBox">
       <div class="basketName">
         {{ basketName }}
-        {{ blinkMap }}
       </div>
       <div class="inputBox shadow">
         <input type="text" v-model="randomValue" placeholder="Random 25" class="form-control" required/>
@@ -80,9 +79,9 @@
         <td align='center' class="idxColor fontSize"> {{inxMap[mlist]+1}} </td>
         <td align='center' class="fontSize"> {{codeMap[mlist]}} </td>
         <td align='center' class="curPrice fontSize"> {{stockNameMap[mlist]}} </td>
-        <td align='center' v-bind:class="[blinkMap[mlist]==1 ? blink : curPrice]" class="curPrice"> {{curPriceMap[mlist]}} </td>
+        <td align='center' v-bind:class="[blinkMap[mlist]==1 ? blink : blinkEnd]" class="curPrice"> {{curPriceMap[mlist]}} </td>
         <td align='center' class="buy fontSize"> {{orderQntyMap[mlist]}} </td>
-        <td align='center' class="idxColor fontSize"> {{tighteningQntyMap[mlist]}} </td>
+        <td align='center' v-bind:class="[tght_blinkMap[mlist]==1 ? blink : blinkEnd]" class="idxColor fontSize"> {{tighteningQntyMap[mlist]}} </td>
       </tr>
     </table>
     <table id='tableDynid' width='500' border="1" align="center">
@@ -145,8 +144,9 @@
       rdmIdxLists: [],
       orderQntyLists: [],
       blinkMap:{},
+      tght_blinkMap:{},
       blink:'blink',
-      curPrice:'curPrice',
+      blinkEnd:'blinkEnd',
       stockNameMap: {},
       inxMap: {},
       rndMap: {},
@@ -157,7 +157,7 @@
       ws: socket,
       wsl: '',
       orderComplete: false,
-      debug: true
+      debug: false
     },
     mounted() {
       //this.ws = new WebSocket("ws://192.168.100.146:8080/web_server/websocket");
@@ -241,32 +241,30 @@
           this.curPriceMap[stockCode] = comma(localStorage.getItem('l_' + stockCode) * 1 + "");
           this.curPriceMap = _.clone(this.curPriceMap);
           this.blinkMap[stockCode]=0;
-
-          if(i==2){
-            this.blinkMap[stockCode] = 1;
-            console.log(i+" / blinkMap["+stockCode+"]: "+this.blinkMap[stockCode]);
-            this.blinkMap = _.clone(this.blinkMap);
-            //this.blinkMap[stockCode] = 0;
-            //console.log(i+" / blinkMap["+stockCode+"]: "+this.blinkMap[stockCode]);
-          }
+          this.tght_blinkMap[stockCode]=0;
         }
       },
 
       listenStorageORD() {
         var vm = this;
         window.addEventListener('storage', function(e) {
-          for (mlist in vm.list) {
-            var num = vm.list[mlist];
+          if (vm.list.indexOf(e.key.slice(2,)) > -1) {
+            var num = e.key.slice(2,);
             if (e.key == "t_" + num) {
               var jdata = JSON.parse(e.newValue);
+              if(vm.curPriceMap[num]==comma(jdata["체결가격"] * 1 + "")){
+                return;
+              }
               vm.curPriceMap[num] = comma(jdata["체결가격"] * 1 + "");
               console.log("종목코드: "+num+" / 현재가: " + vm.curPriceMap[num]);
               vm.curPriceMap = _.clone(vm.curPriceMap);
 
+              for(mlist in vm.list) {
+                vm.blinkMap[vm.list[mlist]] = 0;
+                vm.blinkMap = _.clone(vm.blinkMap);
+              }
               vm.blinkMap[num] = 1;
               vm.blinkMap = _.clone(vm.blinkMap);
-              vm.blinkMap[num] = 0;
-
             }
           }
           if (e.key == "o_" + vm.basketName) {
@@ -275,6 +273,13 @@
             var tmpStockCode = jdata["stock"]; //잔량
             vm.tighteningQntyMap[tmpStockCode] = vm.orderQntyMap[tmpStockCode] - jdata["num"];
             vm.tighteningQntyMap = _.clone(vm.tighteningQntyMap);
+
+            for(mlist in vm.list) {
+              vm.tght_blinkMap[vm.list[mlist]] = 0;
+              vm.tght_blinkMap = _.clone(vm.tght_blinkMap);
+            }
+            vm.tght_blinkMap[tmpStockCode] = 1;
+            vm.tght_blinkMap = _.clone(vm.tght_blinkMap);
           }
         }); //window
       } //listenStorageORD()
@@ -292,10 +297,12 @@
   }
 
   .blink {
-    color: rgb (0, 137, 226);
     font-size: 14px;
     font-weight: bold;
     animation: blink 0.5s 2;
+  }
+  .blinkEnd {
+    font-size: 14px;
   }
 
   @keyframes blink {
@@ -394,7 +401,6 @@
 
   .fontSize {
     font-size: 14px;
-    font-weight: normal;
   }
 
   .idxColor {

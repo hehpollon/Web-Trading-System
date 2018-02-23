@@ -19,7 +19,7 @@
 </head>
 
 <body>
-  
+
   <div id="app">
   <div :class="logo">
     <img src="src/assets/favicon.ico" v-bind:width="logoWidth" alt="Vue.js">
@@ -48,7 +48,7 @@
     </div>
     <div class="container">
 
-      
+
       <div class="inputBox shadow" v-if="showInput == true">
         <input type="text" v-model="stockName" placeholder="주식명" list="stocklist" required >
         <datalist id="stocklist" >
@@ -90,7 +90,7 @@
       basketLists: [],
       stockNameList : [],
       logoWidth: "120px",
-      debug: true
+      debug: false
     },
     methods: {
       completeBatch() {
@@ -113,8 +113,7 @@
 
           }
         }else{
-          this.ws = new WebSocket("ws://127.0.0.1:5678/"); //test
-          //this.ws = new WebSocket("ws://192.168.100.146:8080/web_server/websocket");
+          this.ws = new WebSocket("ws://192.168.100.146:8080/web_server/websocket");
         }
 
         this.batchCompleteNum = 0;

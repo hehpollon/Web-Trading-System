@@ -500,7 +500,7 @@ async def sendData(websocket):
 				if isSimultaneousCall:
 					await asyncio.sleep(0.0001)
 				else:
-					await asyncio.sleep(0.1)
+					await asyncio.sleep(0.001)
 
 	f.close()
 
