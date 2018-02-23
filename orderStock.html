@@ -72,7 +72,7 @@
         <td align='center' class="fontSize"> 종목코드 </td>
         <td align='center' class="fontSize"> 종목명 </td>
         <td align='center' class="fontSize"> 현재가 </td>
-        <td align='center' class="fontSize"> 주문수량 </td>
+        <td align='center' class="blink" class="fontSize"> 주문수량 </td>
         <td align='center' class="fontSize"> 체결수량 </td>
       </tr>
       <tr id='row1' class="basketContents" v-for="mlist in list">
@@ -118,7 +118,6 @@
     if (fnum != undefined && fnum.length > 0) {
       str = str + "." + fnum
     }
-
     return str;
   }
 
@@ -128,7 +127,6 @@
       function decode(s) {
         return decodeURIComponent(s.split("+").join(" "));
       }
-
       _parammap[decode(arguments[1])] = decode(arguments[2]);
     });
 
@@ -166,8 +164,10 @@
         if (this.rdmIdxLists.length == 0) {
           $('#warningModal').modal('show');
         } else {
-          //JSON 생성
+
           this.orderComplete = true;
+
+          //서버에 주문 요청
           var orderArray = new Array();
           for (var l = 0; l < this.list.length; l++) {
             var orderSmallInfo = new Object();
@@ -175,20 +175,17 @@
             orderSmallInfo.num = this.orderQntyLists[l];
             orderArray.push(orderSmallInfo);
           }
-
           var orderBasketInfo = new Object();
           orderBasketInfo.basketName = this.basketName;
           orderBasketInfo.orderLists = orderArray;
-
           var jsonInfo = JSON.stringify(orderBasketInfo);
-          //console.log("ORDER SEND jsonInfo: " + jsonInfo);
-          var vm = this;
-          //vm.wsl.send(jsonInfo); //주문 서버전송 before ver.
-          vm.ws.send(jsonInfo);//
+          //console.log("주문요청 jsonInfo: " + jsonInfo);
+          this.ws.send(jsonInfo);
         }
       },
 
       createRandOdrList() {
+        //OK버튼 클릭
         if (this.randomValue == null) {
           this.randomValue = 25;
         }
@@ -205,13 +202,20 @@
           }
           this.rdmIdxLists.push(idx_tmpValue);
           this.list.push(localStorage.getItem('idxKSP' + idx_tmpValue));
-          //console.log("this.rdmIdxLists(idx) length: " + this.rdmIdxLists.length);
           this.orderQntyLists.push(rndOrderQnty);
         }
-        //console.log("this.rdmIdxLists : " + this.rdmIdxLists);
+        //table row구성
         this.addDynamicRow(tableDynid);
+
+        //서버에 현재가요청
+        var orderKeyInfo = new Object();
+        orderKeyInfo.basketName = this.basketName;
+        orderKeyInfo.orderk = this.list;
+        var jsonInfo = JSON.stringify(orderKeyInfo);
+        //console.log("orderK SEND jsonInfo: " + jsonInfo);
+        this.ws.send(jsonInfo);
       },
- 
+
       addDynamicRow(table_id) {
         var rowlen = table_id.rows.length;
         for (var i = 0; i < this.rdmIdxLists.length; i++) {
@@ -219,23 +223,6 @@
           var stockCode = this.list[i];
           var stockName = localStorage.getItem(stockCode);
 
-          var orderKeyInfo = new Object();
-          orderKeyInfo.orderk = stockCode;
-          //orderKeyInfo.key = stockCode;
-
-          var jsonInfo = JSON.stringify(orderKeyInfo);
-          //console.log("KEY SEND jsonInfo: " + jsonInfo);
-          var vm = this;
-          //vm.wsl.send(jsonInfo); //서버전송 before ver.
-          vm.ws.send(jsonInfo);
-          //console.log("order ws 현재가요청:"+jsonInfo);    
-
-          try {
-            //vm.wsl.send(stockCode);
-            //console.log("order wsl 현재가요청:"+stockCode);
-          } catch (err) {
-          }
-          //console.log("stockCode: " + stockCode);
           this.stockNameMap[stockCode] = stockName;
           this.curPriceMap[stockCode] = 0;
           this.inxMap[stockCode] = i;
@@ -263,7 +250,7 @@
           if (e.key == "o_" + vm.basketName) {
             //서버로부터 체결결과 받기
             var jdata = JSON.parse(e.newValue);
-            var tmpStockCode = jdata["stock"];//잔량
+            var tmpStockCode = jdata["stock"]; //잔량
             vm.tighteningQntyMap[tmpStockCode] = vm.orderQntyMap[tmpStockCode] - jdata["num"];
             vm.tighteningQntyMap = _.clone(vm.tighteningQntyMap);
           }
@@ -280,6 +267,27 @@
   th,
   td {
     border: 1px solid #ffffff;
+  }
+
+  .blink {
+    color: rgb (0, 137, 226);
+    font-size: 14px;
+    animation: blink 1s infinite;
+  }
+
+  @keyframes blink {
+    0% {
+      opacity: 1;
+    }
+    75% {
+      opacity: 1;
+    }
+    76% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 0;
+    }
   }
 
   .orderbtn {
@@ -326,7 +334,7 @@
     border-radius: 5px;
     text-align: center;
     height: 50px;
-    align:center;
+    align: center;
     margin-bottom: 20px;
   }
 
