@@ -264,11 +264,11 @@
           this.tighteningQntyMap[stockCode] = 0;
           this.tighteningCompMap[stockCode] = 0;
           this.curPriceMap[stockCode] = comma(localStorage.getItem('l_' + stockCode) * 1 + "");
-          this.curPriceMap = _.clone(this.curPriceMap);
           this.blinkMap[stockCode] = 0;
           this.tght_blinkMap[stockCode] = 0;
           this.riseOrFallMap[stockCode] = 0;
         }
+        this.curPriceMap = _.clone(this.curPriceMap);
       },
 
       listenStorageORD() {
@@ -284,9 +284,9 @@
 
               var beforeDay = parseInt(jdata["전일대비(기준가대비)구분"]);
               vm.riseOrFallMap[num] = beforeDay > 3 ? 1 : 0;
+              vm.riseOrFallMap[num] = _.clone(vm.riseOrFallMap[num]);
 
               vm.curPriceMap[num] = comma(jdata["체결가격"] * 1 + "");
-              vm.riseOrFallMap[num] = _.clone(vm.riseOrFallMap[num]);
               vm.curPriceMap[num] = _.clone(vm.curPriceMap[num]);
               //console.log("종목: " + num + ", 현재가: " + vm.curPriceMap[num]);
 
@@ -323,6 +323,7 @@
               for (mComlist in vm.tighteningCompMap) { //basket체결여부 확인
                 if (vm.tighteningCompMap[mComlist] == 0){
                   isAllComplete = false;
+                  break;
                 }
               }
               if (isAllComplete == true) { //basket 최종 체결완료
