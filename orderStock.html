@@ -286,16 +286,16 @@
               vm.riseOrFallMap[num] = beforeDay > 3 ? 1 : 0;
 
               vm.curPriceMap[num] = comma(jdata["체결가격"] * 1 + "");
-              vm.riseOrFallMap = _.clone(vm.riseOrFallMap);
-              vm.curPriceMap = _.clone(vm.curPriceMap);
+              vm.riseOrFallMap[num] = _.clone(vm.riseOrFallMap[num]);
+              vm.curPriceMap[num] = _.clone(vm.curPriceMap[num]);
               //console.log("종목: " + num + ", 현재가: " + vm.curPriceMap[num]);
 
               for (mlist in vm.list) {
                 vm.blinkMap[vm.list[mlist]] = 0;
-                vm.blinkMap = _.clone(vm.blinkMap);
+                vm.blinkMap[vm.list[mlist]] = _.clone(vm.blinkMap[vm.list[mlist]]);
               }
               vm.blinkMap[num] = 1;
-              vm.blinkMap = _.clone(vm.blinkMap);
+              vm.blinkMap[num] = _.clone(vm.blinkMap[num]);
             }
           }
           if (e.key == "o_" + vm.basketName) {
@@ -307,19 +307,19 @@
             if (vm.tighteningQntyMap[tmpStockCode] != (vm.orderQntyMap[tmpStockCode] - jdata["num"])) {
               //체결수량 업데이트
               vm.tighteningQntyMap[tmpStockCode] = vm.orderQntyMap[tmpStockCode] - jdata["num"];
-              vm.tighteningQntyMap = _.clone(vm.tighteningQntyMap);
+              vm.tighteningQntyMap[tmpStockCode] = _.clone(vm.tighteningQntyMap[tmpStockCode]);
 
               for (mlist in vm.list) {
                 vm.tght_blinkMap[vm.list[mlist]] = 0;
-                vm.tght_blinkMap = _.clone(vm.tght_blinkMap);
+                vm.tght_blinkMap[vm.list[mlist]] = _.clone(vm.tght_blinkMap[vm.list[mlist]]);
               }
               vm.tght_blinkMap[tmpStockCode] = 1;
-              vm.tght_blinkMap = _.clone(vm.tght_blinkMap);
+              vm.tght_blinkMap[tmpStockCode] = _.clone(vm.tght_blinkMap[tmpStockCode]);
             }
 
             if(jdata["num"]==0) {
               vm.tighteningCompMap[tmpStockCode] = 1; //종목 체결완료
-              vm.tighteningCompMap = _.clone(vm.tighteningCompMap);
+              vm.tighteningCompMap[tmpStockCode] = _.clone(vm.tighteningCompMap[tmpStockCode]);
               for (mComlist in vm.tighteningCompMap) { //basket체결여부 확인
                 if (vm.tighteningCompMap[mComlist] == 0){
                   isAllComplete = false;
