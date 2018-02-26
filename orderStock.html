@@ -27,7 +27,7 @@
         {{ basketName }}
       </div>
       <div class="inputBox shadow">
-        <input type="text" v-model="randomValue" placeholder="Random 25" class="form-control" required/>
+        <input type="text" v-model="randomValue" placeholder="Random 100" class="form-control" required/>
       </div>
       <button class="btn btn-outline-warning okbtn" v-on:click="createRandOdrList()">
       OK
@@ -219,7 +219,7 @@
       createRandOdrList() {
         //OK버튼 클릭
         if (this.randomValue == null) {
-          this.randomValue = 25;
+          this.randomValue = 100;
         }
         for (var j = 0; j < this.randomValue; j++) {
           var idx_tmpValue = Math.floor((Math.random() * 883) + 1); //884개
