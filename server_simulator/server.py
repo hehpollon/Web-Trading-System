@@ -496,11 +496,11 @@ async def sendData(websocket):
 		if len(mylist) > 0:
 			if stockCode in mylist:
 				sdata = json.dumps(temp, ensure_ascii=False)
-				await websocket.send(sdata)
 				if isSimultaneousCall:
-					await asyncio.sleep(0.000001)
+					continue
 				else:
-					await asyncio.sleep(0.01)
+					await websocket.send(sdata)
+					await asyncio.sleep(0.1)
 
 	f.close()
 
