@@ -64,6 +64,10 @@
           wEMS 트레이딩
         </button>
       </div>
+      <br>
+      <div v-if="showInput == true">
+        시세창: {{totalStockOpen}}, 바스켓창: {{totalBasketOpen}}
+      </div>
     </div>
   </div>
   <br>
@@ -90,7 +94,9 @@
       basketLists: [],
       stockNameList : [],
       logoWidth: "120px",
-      debug: false
+      debug: false,
+      totalStockOpen: 0,
+      totalBasketOpen: 0
     },
     methods: {
       completeBatch() {
@@ -213,6 +219,7 @@
           }
           this.exwin = window.open("stock.html?name=" + this.stockName, "", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=350,height=430,top=" + (screen.height - 700) + ",left=" + (screen.width -
             1540));
+          this.totalStockOpen += 1;
         }
       },
       orderStock() {
@@ -221,6 +228,7 @@
         this.exwin = window.open("orderStock.html?basketNameParam=" + this.basketLists[this.basketIdx - 1], "", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=700,height=800,top=" +
           (screen.height - 1000) + ",left=" + (screen.width - 1200));
         this.exwin.socket = this.ws;
+        this.totalBasketOpen += 1;
       }
     }
   });
