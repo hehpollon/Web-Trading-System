@@ -33,8 +33,10 @@
       OK
       </button>
       <button id="btnOrder" class="btn btn-outline-info orderbtn" aria-pressed="false" v-on:click="orderBtnClick()">
-      주문 <span class="badge badge-info" v-if="orderComplete == true" >완료</span>
+      주문
       </button>
+      <span class="badge badge-pill badge-warning" v-if="orderIng == true">체결중..</span>
+      <span class="badge badge-pill badge-success" v-if="orderComplete == true">체결완료</span>
     </div>
 
     <!-- Modal -->
@@ -77,9 +79,9 @@
       </tr>
       <tr id='row1' class="basketContents" v-for="mlist in list">
         <td align='center' class="idxColor fontSize"> {{inxMap[mlist]+1}} </td>
-        <td align='center' class="fontSize">   {{codeMap[mlist].slice(3,9)}} </td>
+        <td align='center' class="fontSize"> {{codeMap[mlist].slice(3,9)}} </td>
         <td align='center' class="curPrice fontSize stockNameLink" v-on:click="getStock(stockNameMap[mlist])"> {{stockNameMap[mlist]}} </td>
-        <td align='center' v-bind:class="[blinkMap[mlist]==1 ? blink : blinkEnd]" class="curPrice"> {{curPriceMap[mlist]}} </td>
+        <td align='center' v-bind:class="[blinkMap[mlist]==1 ? blink : blinkEnd , riseOrFallMap[mlist]==0 ? bluecolor : redcolor]"> {{curPriceMap[mlist]}} </td>
         <td align='center' class="buy fontSize"> {{orderQntyMap[mlist]}} </td>
         <td align='center' v-bind:class="[tght_blinkMap[mlist]==1 ? blink : blinkEnd]" class="idxColor fontSize"> {{tighteningQntyMap[mlist]}} </td>
       </tr>
@@ -143,10 +145,13 @@
       list: [],
       rdmIdxLists: [],
       orderQntyLists: [],
-      blinkMap:{},
-      tght_blinkMap:{},
-      blink:'blink',
-      blinkEnd:'blinkEnd',
+      blinkMap: {},
+      tght_blinkMap: {},
+      blink: 'blink',
+      blinkEnd: 'blinkEnd',
+      bluecolor: 'bluecolor',
+      redcolor: 'redcolor',
+      riseOrFallMap: {},
       stockNameMap: {},
       inxMap: {},
       rndMap: {},
@@ -154,14 +159,16 @@
       curPriceMap: {},
       orderQntyMap: {},
       tighteningQntyMap: {},
+      tighteningCompMap: {},
       ws: socket,
       wsl: '',
+      orderIng: false,
       orderComplete: false,
       debug: false
     },
     mounted() {
       //this.ws = new WebSocket("ws://192.168.100.146:8080/web_server/websocket");
-      if(this.debug) {
+      if (this.debug) {
         this.ws = new WebSocket("ws://127.0.0.1:6789/");
       }
       this.listenStorageORD();
@@ -172,8 +179,7 @@
         if (this.rdmIdxLists.length == 0) {
           $('#warningModal').modal('show');
         } else {
-
-          this.orderComplete = true;
+          this.orderIng = true;
 
           //서버에 주문 요청
           var orderArray = new Array();
@@ -197,7 +203,7 @@
           alert("없는 종목입니다.");
         } else {
           this.ws.send("{\"key\":\"" + stockNum + "\"}");
-          if(this.debug) {
+          if (this.debug) {
             try {
               this.wsl.send(localStorage.getItem(stockName));
 
@@ -256,28 +262,35 @@
           this.rndMap[stockCode] = this.rdmIdxLists[i];
           this.orderQntyMap[stockCode] = this.orderQntyLists[i];
           this.tighteningQntyMap[stockCode] = 0;
+          this.tighteningCompMap[stockCode] = 0;
           this.curPriceMap[stockCode] = comma(localStorage.getItem('l_' + stockCode) * 1 + "");
           this.curPriceMap = _.clone(this.curPriceMap);
-          this.blinkMap[stockCode]=0;
-          this.tght_blinkMap[stockCode]=0;
+          this.blinkMap[stockCode] = 0;
+          this.tght_blinkMap[stockCode] = 0;
+          this.riseOrFallMap[stockCode] = 0;
         }
       },
 
       listenStorageORD() {
         var vm = this;
         window.addEventListener('storage', function(e) {
-          if (vm.list.indexOf(e.key.slice(2,)) > -1) {
-            var num = e.key.slice(2,);
+          if (vm.list.indexOf(e.key.slice(2, )) > -1) {
+            var num = e.key.slice(2, );
             if (e.key == "t_" + num) {
               var jdata = JSON.parse(e.newValue);
-              if(vm.curPriceMap[num]==comma(jdata["체결가격"] * 1 + "")){
+              if (vm.curPriceMap[num] == comma(jdata["체결가격"] * 1 + "")) {
                 return;
               }
-              vm.curPriceMap[num] = comma(jdata["체결가격"] * 1 + "");
-              //console.log("종목코드: "+num+" / 현재가: " + vm.curPriceMap[num]);
-              vm.curPriceMap = _.clone(vm.curPriceMap);
 
-              for(mlist in vm.list) {
+              var beforeDay = parseInt(jdata["전일대비(기준가대비)구분"]);
+              vm.riseOrFallMap[num] = beforeDay > 3 ? 1 : 0;
+
+              vm.curPriceMap[num] = comma(jdata["체결가격"] * 1 + "");
+              vm.riseOrFallMap = _.clone(vm.riseOrFallMap);
+              vm.curPriceMap = _.clone(vm.curPriceMap);
+              //console.log("종목: " + num + ", 현재가: " + vm.curPriceMap[num]);
+
+              for (mlist in vm.list) {
                 vm.blinkMap[vm.list[mlist]] = 0;
                 vm.blinkMap = _.clone(vm.blinkMap);
               }
@@ -289,15 +302,34 @@
             //서버로부터 체결결과 받기
             var jdata = JSON.parse(e.newValue);
             var tmpStockCode = jdata["stock"]; //잔량
-            vm.tighteningQntyMap[tmpStockCode] = vm.orderQntyMap[tmpStockCode] - jdata["num"];
-            vm.tighteningQntyMap = _.clone(vm.tighteningQntyMap);
+            var isAllComplete = true;
 
-            for(mlist in vm.list) {
-              vm.tght_blinkMap[vm.list[mlist]] = 0;
+            if (vm.tighteningQntyMap[tmpStockCode] != (vm.orderQntyMap[tmpStockCode] - jdata["num"])) {
+              //체결수량 업데이트
+              vm.tighteningQntyMap[tmpStockCode] = vm.orderQntyMap[tmpStockCode] - jdata["num"];
+              vm.tighteningQntyMap = _.clone(vm.tighteningQntyMap);
+
+              for (mlist in vm.list) {
+                vm.tght_blinkMap[vm.list[mlist]] = 0;
+                vm.tght_blinkMap = _.clone(vm.tght_blinkMap);
+              }
+              vm.tght_blinkMap[tmpStockCode] = 1;
               vm.tght_blinkMap = _.clone(vm.tght_blinkMap);
             }
-            vm.tght_blinkMap[tmpStockCode] = 1;
-            vm.tght_blinkMap = _.clone(vm.tght_blinkMap);
+
+            if(jdata["num"]==0) {
+              vm.tighteningCompMap[tmpStockCode] = 1; //종목 체결완료
+              vm.tighteningCompMap = _.clone(vm.tighteningCompMap);
+              for (mComlist in vm.tighteningCompMap) { //basket체결여부 확인
+                if (vm.tighteningCompMap[mComlist] == 0){
+                  isAllComplete = false;
+                }
+              }
+              if (isAllComplete == true) { //basket 최종 체결완료
+                vm.orderIng = false;
+                vm.orderComplete = true;
+              }
+            }
           }
         }); //window
       } //listenStorageORD()
@@ -313,6 +345,7 @@
   td {
     border: 1px solid #ffffff;
   }
+
   .stockNameLink:hover {
     cursor: pointer;
     background-color: #ababab;
@@ -324,6 +357,7 @@
     font-weight: bold;
     animation: blink 0.5s 2;
   }
+
   .blinkEnd {
     font-size: 14px;
   }
@@ -438,6 +472,14 @@
     margin-left: 50px;
     font-size: 18px;
     font-weight: bold;
+  }
+
+  .bluecolor {
+    color: #0D46C8;
+  }
+
+  .redcolor {
+    color: #E6050A;
   }
 
   #app {
