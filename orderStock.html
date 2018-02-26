@@ -80,7 +80,7 @@
       <tr id='row1' class="basketContents" v-for="mlist in list">
         <td align='center' class="idxColor fontSize"> {{inxMap[mlist]+1}} </td>
         <td align='center' class="fontSize"> {{codeMap[mlist].slice(3,9)}} </td>
-        <td align='center' class="curPrice fontSize stockNameLink" v-on:click="getStock(stockNameMap[mlist])"> {{stockNameMap[mlist]}} </td>
+        <td align='center' class="stockName fontSize stockNameLink" v-on:click="getStock(stockNameMap[mlist])"> {{stockNameMap[mlist]}} </td>
         <td align='center' v-bind:class="[blinkMap[mlist]==1 ? blink : blinkEnd , riseOrFallMap[mlist]==0 ? bluecolor : redcolor]"> {{curPriceMap[mlist]}} </td>
         <td align='center' class="buy fontSize"> {{orderQntyMap[mlist]}} </td>
         <td align='center' v-bind:class="[tght_blinkMap[mlist]==1 ? blink : blinkEnd]" class="idxColor fontSize"> {{tighteningQntyMap[mlist]}} </td>
@@ -390,10 +390,6 @@
     margin-left: 10px;
   }
 
-  .stockName {
-    padding: 5px;
-  }
-
   body {
     background-color: #F6F6F8;
   }
@@ -447,9 +443,10 @@
     box-shadow: 5px 10px 10px rgba(0, 0, 0, 0.03)
   }
 
-  .curPrice {
-    color: #0D46C8;
+  .stockName {
+    color: #000000;
     font-size: 14px;
+    font-weight: bold;
   }
 
   .buy {
