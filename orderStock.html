@@ -29,7 +29,7 @@
       <div class="inputBox shadow">
         <input type="text" v-model="randomValue" placeholder="Random 100" class="form-control" required/>
       </div>
-      <button class="btn btn-outline-warning okbtn" v-on:click="createRandOdrList()">
+      <button class="btn btn-outline-warning okbtn" v-on:click="createRandOdrList2()">
       OK
       </button>
       <button id="btnOrder" class="btn btn-outline-info orderbtn" aria-pressed="false" v-on:click="orderBtnClick()">
@@ -77,8 +77,8 @@
         <td align='center' class="fontSize"> 주문수량 </td>
         <td align='center' class="fontSize"> 체결수량 </td>
       </tr>
-      <tr id='row1' class="basketContents" v-for="mlist in list">
-        <td align='center' class="idxColor fontSize"> {{inxMap[mlist]+1}} </td>
+      <tr id='row1' class="basketContents" v-for="(mlist,idx) in list">
+        <td align='center' class="idxColor fontSize"> {{idx+1}} </td>
         <td align='center' class="fontSize"> {{codeMap[mlist].slice(3,9)}} </td>
         <td align='center' class="stockName fontSize stockNameLink" v-on:click="getStock(stockNameMap[mlist])"> {{stockNameMap[mlist]}} </td>
         <td align='center' v-bind:class="[blinkMap[mlist]==1 ? blink : blinkEnd , riseOrFallMap[mlist]==0 ? bluecolor : redcolor]"> {{curPriceMap[mlist]}} </td>
@@ -250,8 +250,49 @@
         this.ws.send(jsonInfo);
       },
 
+      createRandOdrList2() {
+        //OK버튼 클릭
+        if (this.randomValue == null) {
+          this.randomValue = 100;
+        }
+        for (var j = 0; j < this.randomValue/2; j++) {
+          var idx_tmpValue = Math.floor((Math.random() * 883) + 1); //884개
+          var rndOrderQnty = Math.floor((Math.random() * 1000) + 1);
+
+          //basket내 stockCode 중복방지
+          var tmpRndArray = this.rdmIdxLists.sort();
+          for (var e = 0; e < tmpRndArray.length; e++) {
+            if (tmpRndArray[e] == idx_tmpValue) {
+              idx_tmpValue += 1;
+            }
+          }
+          this.rdmIdxLists.push(idx_tmpValue);
+          this.list.push(localStorage.getItem('idxKSP' + idx_tmpValue));
+          this.orderQntyLists.push(rndOrderQnty);
+        }
+
+        for(var c=0; c<this.randomValue/2; c++){
+          //console.log("this.rdmIdxLists["+c+"]: "+this.rdmIdxLists[c]);
+          this.rdmIdxLists.push(this.rdmIdxLists[c]);
+          this.list.push(localStorage.getItem('idxKSP' + this.rdmIdxLists[c]));
+          this.orderQntyLists.push(this.orderQntyLists[c]);
+        }
+
+        //table row구성
+        this.addDynamicRow(tableDynid);
+        //console.log("this.inxMap["+stockCode+"]: "+this.inxMap[stockCode]);
+        //서버에 현재가요청
+        var orderKeyInfo = new Object();
+        orderKeyInfo.basketName = this.basketName;
+        orderKeyInfo.orderk = this.list;
+        var jsonInfo = JSON.stringify(orderKeyInfo);
+        //console.log("orderK SEND jsonInfo: " + jsonInfo);
+        this.ws.send(jsonInfo);
+      },
+
       addDynamicRow(table_id) {
         var rowlen = table_id.rows.length;
+        //console.log("this.rdmIdxLists.length: "+this.rdmIdxLists.length);
         for (var i = 0; i < this.rdmIdxLists.length; i++) {
           var row = table_id.insertRow(rowlen - 1);
           var stockCode = this.list[i];
@@ -260,6 +301,7 @@
           this.stockNameMap[stockCode] = stockName;
           this.curPriceMap[stockCode] = 0;
           this.inxMap[stockCode] = i;
+          //console.log("this.inxMap["+stockCode+"]: "+this.inxMap[stockCode]);
           this.codeMap[stockCode] = stockCode;
           this.rndMap[stockCode] = this.rdmIdxLists[i];
           this.orderQntyMap[stockCode] = this.orderQntyLists[i];
@@ -270,6 +312,7 @@
           this.tght_blinkMap[stockCode] = 0;
           this.riseOrFallMap[stockCode] = 0;
         }
+        this.inxMap = _.clone(this.inxMap);
         this.curPriceMap = _.clone(this.curPriceMap);
       },
 
@@ -303,7 +346,7 @@
           if (e.key == "o_" + vm.basketName) {
             //서버로부터 체결결과 받기
             var jdata = JSON.parse(e.newValue);
-            var tmpStockCode = jdata["stock"]; //잔량
+            var tmpStockCode = jdata["stock"];
             var isAllComplete = true;
 
             if (vm.tighteningQntyMap[tmpStockCode] != (vm.orderQntyMap[tmpStockCode] - jdata["num"])) {
@@ -331,6 +374,8 @@
               if (isAllComplete == true) { //basket 최종 체결완료
                 vm.orderIng = false;
                 vm.orderComplete = true;
+                vm.tght_blinkMap[tmpStockCode]=0;
+                vm.tght_blinkMap[tmpStockCode] = _.clone(vm.tght_blinkMap[tmpStockCode]);
               }
             }
           }
@@ -490,7 +535,6 @@
   .bluecolor {
     color: #0D46C8;
   }
-
   .redcolor {
     color: #E6050A;
   }
