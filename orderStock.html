@@ -29,7 +29,7 @@
       <div class="inputBox shadow">
         <input type="text" v-model="randomValue" placeholder="Random 100" class="form-control" required/>
       </div>
-      <button class="btn btn-outline-warning okbtn" v-on:click="createRandOdrList2()">
+      <button class="btn btn-outline-warning okbtn" v-on:click="createRandOdrList()">
       OK
       </button>
       <button id="btnOrder" class="btn btn-outline-info orderbtn" aria-pressed="false" v-on:click="orderBtnClick()">
@@ -166,7 +166,7 @@
       wsl: '',
       orderIng: false,
       orderComplete: false,
-      debug: false
+      debug: true
     },
     mounted() {
       //this.ws = new WebSocket("ws://192.168.100.146:8080/web_server/websocket");
@@ -249,34 +249,6 @@
         //console.log("orderK SEND jsonInfo: " + jsonInfo);
         this.ws.send(jsonInfo);
       },
-
-      createRandOdrList2() {
-        //OK버튼 클릭
-        if (this.randomValue == null) {
-          this.randomValue = 100;
-        }
-        for (var j = 0; j < this.randomValue/2; j++) {
-          var idx_tmpValue = Math.floor((Math.random() * 883) + 1); //884개
-          var rndOrderQnty = Math.floor((Math.random() * 10000) + 1);
-
-          //basket내 stockCode 중복방지
-          var tmpRndArray = this.rdmIdxLists.sort();
-          for (var e = 0; e < tmpRndArray.length; e++) {
-            if (tmpRndArray[e] == idx_tmpValue) {
-              idx_tmpValue += 1;
-            }
-          }
-          this.rdmIdxLists.push(idx_tmpValue);
-          this.list.push(localStorage.getItem('idxKSP' + idx_tmpValue));
-          this.orderQntyLists.push(rndOrderQnty);
-        }
-
-        for(var c=0; c<this.randomValue/2; c++){
-          //console.log("this.rdmIdxLists["+c+"]: "+this.rdmIdxLists[c]);
-          this.rdmIdxLists.push(this.rdmIdxLists[c]);
-          this.list.push(localStorage.getItem('idxKSP' + this.rdmIdxLists[c]));
-          this.orderQntyLists.push(this.orderQntyLists[c]);
-        }
 
         //table row구성
         this.addDynamicRow(tableDynid);
