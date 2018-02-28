@@ -3,6 +3,7 @@ package kr.co.koscom.training;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -28,29 +29,29 @@ import org.json.JSONObject;
 @ServerEndpoint("/websocket")
 public class websocket {
 
-	private List<Session> clients = Collections.synchronizedList(new ArrayList<Session>());
+	private static List<Session> clients = Collections.synchronizedList(new ArrayList<Session>());
 
-	private ConcurrentHashMap<String, String> A0011_HashMap = new ConcurrentHashMap<String, String>();
-	private ConcurrentHashMap<String, String> A3011_HashMap = new ConcurrentHashMap<String, String>();
-	private ConcurrentHashMap<String, String> B6011_HashMap = new ConcurrentHashMap<String, String>();
+	private static ConcurrentHashMap<String, String> A0011_HashMap = new ConcurrentHashMap<String, String>();
+	private static ConcurrentHashMap<String, String> A3011_HashMap = new ConcurrentHashMap<String, String>();
+	private static ConcurrentHashMap<String, String> B6011_HashMap = new ConcurrentHashMap<String, String>();
 
-	private SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
-	private Random random = new Random();
-	private int timeFlag = 0;
-	private int onOpenFlag = 0;
+	private static SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
+	private static Random random = new Random();
+	private static int timeFlag = 0;
+	private static int onOpenFlag = 0;
 
-	private int keyInterval = 100;
-	private int orderkInterval = 100;
-	private int tightInterval = 5 + random.nextInt(10);
+	private static int keyInterval = 100;
+	private static int orderkInterval = 100;
+	private static int tightInterval = 5;
 
-	private int qCount = 0;
-	private int tCount = 0;
+	private static int qCount = 0;
+	private static int tCount = 0;
 
-	private int totalTraded = 0;
-	private ArrayList<Thread> threads = new ArrayList<Thread>();
+	private static int totalTraded = 0;
+	private static ArrayList<Thread> threads = new ArrayList<Thread>();
 	
-	private long start = 0;
-	private long end = 0;
+	private static long start = 0;
+	private static long end = 0;
 
 	@OnMessage
 	public void onMessage(String message, Session session) throws Exception {
@@ -101,10 +102,8 @@ public class websocket {
 							}
 
 							try {
-								if(newPrice != prePrice) {
-									qCount++;
+								if(newPrice != prePrice) 
 									sendQueue(sndString);
-								}
 							} catch (Exception e) {
 								// TODO Auto-generated catch block
 								System.exit(0);
@@ -183,10 +182,8 @@ public class websocket {
 							}
 
 							try {
-								if(newPrice != prePrice) {
-									qCount++;									
+								if(newPrice != prePrice) 
 									sendQueue(sndString);
-								}
 							} catch (Exception e) {
 								// TODO Auto-generated catch block
 								System.exit(0);
@@ -261,7 +258,7 @@ public class websocket {
 
 						// 한 종목을 골라, 체결 수량을 랜덤하게 줄임
 						int cur = orderMap.get(randKey);
-						int traded = random.nextInt(cur) % 10 + 1;
+						int traded = random.nextInt(cur) % 5 + 1;
 						cur = cur - traded;
 
 						// 맵 업데이트
@@ -480,6 +477,12 @@ public class websocket {
 							}
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
+							try {
+								data = br2.readLine();
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
 							e.printStackTrace();
 						}
 
@@ -514,8 +517,9 @@ public class websocket {
 		DecimalFormat df = new DecimalFormat("#.##");
 		df.format(123.435436);
 		
+		printlnWithTime("running time is : " + runningTime + " sec");
 		printlnWithTime("# of transmitted quote data is : " + qCount + " (" + df.format(qCount / runningTime) + " per second)");
-		printlnWithTime("# of transmitted tightening data is : " + tCount + " (" + df.format(tCount / runningTime) + " per second)");
+		printlnWithTime("# of trades is : " + tCount + " (" + df.format(tCount / runningTime) + " per second)");
 		printlnWithTime("# of traded stocks is : " + totalTraded + " (" + df.format(totalTraded / runningTime) + " per second)");
 		
 		printlnWithTime("program is terminated.");
