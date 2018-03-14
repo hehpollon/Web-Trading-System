@@ -250,18 +250,6 @@
         this.ws.send(jsonInfo);
       },
 
-        //table row구성
-        this.addDynamicRow(tableDynid);
-        //console.log("this.inxMap["+stockCode+"]: "+this.inxMap[stockCode]);
-        //서버에 현재가요청
-        var orderKeyInfo = new Object();
-        orderKeyInfo.basketName = this.basketName;
-        orderKeyInfo.orderk = this.list;
-        var jsonInfo = JSON.stringify(orderKeyInfo);
-        //console.log("orderK SEND jsonInfo: " + jsonInfo);
-        this.ws.send(jsonInfo);
-      },
-
       addDynamicRow(table_id) {
         var rowlen = table_id.rows.length;
         //console.log("this.rdmIdxLists.length: "+this.rdmIdxLists.length);
